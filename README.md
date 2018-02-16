@@ -1,1 +1,1 @@
-# VoxelECS
+This is a rework of the VoxelEngine Project using the new ECS
