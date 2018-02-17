@@ -87,9 +87,11 @@ namespace Assets.Scripts.Chunks
                     shorts.Add(counter);
                     shorts.Add(current);
                     current = vox;
-                    counter = 0;
+                    counter = 1;
                 }
             }
+            shorts.Add(counter);
+            shorts.Add(current);
             var byteArray = new byte[shorts.Count * 2];
             Buffer.BlockCopy(shorts.ToArray(), 0, byteArray, 0, byteArray.Length);
             return byteArray;
