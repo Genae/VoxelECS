@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.Linq;
 using Assets.Scripts.Chunks;
 using NUnit.Framework;
-using Unity.Collections;
-using Unity.Jobs;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
@@ -104,47 +102,34 @@ namespace Assets.Tests.Editor.Chunks
             Debug.Log(timeR);
 
             Debug.Log("Serializing");
-            var bytes = new NativeArray<byte>(10000000, Allocator.TempJob);
-            var chunkN = new NativeArray<ChunkData>(chunkcount, Allocator.TempJob);
-            chunkN.CopyFrom(chunks);
-            var indx = new NativeArray<int>(1, Allocator.TempJob);
+            var bytes = new byte[chunkcount][];
             watch.Reset();
             watch.Start();
-            var job = new SerializeChunkDataJob
+            for (var i = 0; i < chunkcount; i++)
             {
-                Bytes = bytes,
-                Chunks = chunkN,
-                Index = indx
-            };
-            var handle = job.Schedule();
-            handle.Complete();
-            Debug.Log(indx[0]);
-            var arr = bytes.ToArray();
-
-            bytes.Dispose();
-            indx.Dispose();
-            chunkN.Dispose();
-
+                bytes[i] = chunks[i].SerializeVoxelData();
+            }
             var timeS = watch.ElapsedMilliseconds;
             Debug.Log(timeS);
 
-            /*Debug.Log("Deserializing");
+
+            Debug.Log("Deserializing");
             watch.Reset();
             watch.Start();
             for (var i = 0; i < chunkcount; i++)
             {
                 chunks[i] = new ChunkData();
-                chunks[i].DeserializeVoxelData(bytes[i].ToArray());
+                chunks[i].DeserializeVoxelData(bytes[i]);
             }
             var timeD = watch.ElapsedMilliseconds;
             Debug.Log(timeD);
 
-            Debug.Log("Serialized Data Size in bytes: " + bytes.SelectMany(b => b).ToArray().Length);*/
+            Debug.Log("Serialized Data Size in bytes: " + bytes.SelectMany(b => b).ToArray().Length);
 
             Assert.LessOrEqual(timeW, 200);
             Assert.LessOrEqual(timeR, 200);
-            Assert.LessOrEqual(timeS, 1000);
-            //Assert.LessOrEqual(timeD, 500);
+            Assert.LessOrEqual(timeS, 500);
+            Assert.LessOrEqual(timeD, 500);
         }
     }
 }

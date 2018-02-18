@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.Collections;
-using Unity.Jobs;
 using UnityEngine;
 
 namespace Assets.Scripts.Chunks
@@ -75,6 +73,48 @@ namespace Assets.Scripts.Chunks
         }
         #endregion
 
+        #region CalculateBorders
+        public bool CalculateBorder(ChunkSide side, bool* border)
+        {
+            switch (side)
+            {
+                case ChunkSide.Px:
+                    return CalculateBorder(ChunkDataSettings.ZSize, ChunkDataSettings.YSize, ChunkDataSettings.XSize, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, ChunkDataSettings.XSize -1, border);
+                case ChunkSide.Nx:
+                    return CalculateBorder(ChunkDataSettings.ZSize, ChunkDataSettings.YSize, ChunkDataSettings.XSize, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, 0, border);
+                case ChunkSide.Py:
+                    return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.ZSize, 1, ChunkDataSettings.XSize, (ChunkDataSettings.YSize - 1) * ChunkDataSettings.XSize * ChunkDataSettings.ZSize, border);
+                case ChunkSide.Ny:
+                    return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.ZSize, 1, ChunkDataSettings.XSize, 0, border);
+                case ChunkSide.Pz:
+                    return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.YSize, 1, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, (ChunkDataSettings.ZSize - 1) * ChunkDataSettings.XSize, border);
+                case ChunkSide.Nz:
+                    return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.YSize, 1, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, 0, border);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(side), side, null);
+            }
+        }
+
+        private bool CalculateBorder(ushort rowMax, ushort columnMax, ushort rowMultiplier, int columnMultiplier, ushort offset, bool* border)
+        {
+            var solid = true;
+            var i = 0;
+            fixed (ushort* ptr = VoxelData)
+            {
+                for (var c = 0; c < columnMax; c++)
+                {
+                    for (var r = 0; r < rowMax; r++)
+                    {
+                        var s = *(ptr + c * columnMultiplier + r * rowMultiplier + offset) != 0;
+                        solid = solid && s;
+                        border[i++] = s;
+                    }
+                }
+            }
+            return solid;
+        }
+        #endregion
+
         #region Serialization
         public byte[] SerializeVoxelData()
         {
@@ -133,6 +173,7 @@ namespace Assets.Scripts.Chunks
         #endregion
     }
 
+    /*
     public struct SerializeChunkDataJob : IJob
     {
         [ReadOnly]
@@ -154,11 +195,5 @@ namespace Assets.Scripts.Chunks
             }
             Index[0] = index;
         }
-    }
-
-    public struct ChunkMetaData
-    {
-        public Vector3Int Size;
-
-    }
+    }*/
 }
