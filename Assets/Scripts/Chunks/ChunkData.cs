@@ -1,67 +1,74 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace Assets.Scripts.Chunks
 {
-    public struct ChunkData
+    public class ChunkDataSettings
     {
-        public ushort[] VoxelData;
-        public Vector3Int Size;
+        public const ushort XSize = 16;
+        public const ushort YSize = 16;
+        public const ushort ZSize = 16;
+    }
 
-        #region Constructors
-        public ChunkData(Vector3Int size)
-        {
-            Size = size;
-            VoxelData = new ushort[size.x * size.y * size.z];
-        }
-
-        public ChunkData(byte[] data)
-        {
-            VoxelData = null;
-            Size = default(Vector3Int);
-            DeserializeVoxelData(data);
-        }
-        #endregion
-
+    public unsafe struct ChunkData
+    {
+        public fixed ushort VoxelData[ChunkDataSettings.XSize * ChunkDataSettings.YSize * ChunkDataSettings.ZSize];
+        
         #region Data Access
         public ushort GetVoxelData(Vector3Int pos)
         {
             #if UNITY_EDITOR
-            if (Size.x <= pos.x || Size.y <= pos.y || Size.z <= pos.z)
+            if (ChunkDataSettings.XSize <= pos.x || ChunkDataSettings.YSize <= pos.y || ChunkDataSettings.ZSize <= pos.z)
             {
-                throw new IndexOutOfRangeException($"ChunkData is of Size {Size.x}/{Size.y}/{Size.z} but you try to access {pos.x}/{pos.y}/{pos.z}");
+                throw new IndexOutOfRangeException($"ChunkData is of Size {ChunkDataSettings.XSize}/{ChunkDataSettings.YSize}/{ChunkDataSettings.ZSize} but you try to access {pos.x}/{pos.y}/{pos.z}");
             }
             #endif
-            return VoxelData[pos.x + pos.z * Size.x + pos.y * Size.x * Size.z];
+            fixed (ushort* prt = VoxelData)
+            {
+                var index = pos.x + pos.z * ChunkDataSettings.XSize + pos.y * ChunkDataSettings.XSize * ChunkDataSettings.ZSize;
+                return *(prt + index);
+            }
         }
 
         public void SetVoxelData(Vector3Int pos, ushort data)
         {
             #if UNITY_EDITOR
-            if (Size.x <= pos.x || Size.y <= pos.y || Size.z <= pos.z)
+            if (ChunkDataSettings.XSize <= pos.x || ChunkDataSettings.YSize <= pos.y || ChunkDataSettings.ZSize <= pos.z)
             {
-                throw new IndexOutOfRangeException($"ChunkData is of Size {Size.x}/{Size.y}/{Size.z} but you try to access {pos.x}/{pos.y}/{pos.z}");
+                throw new IndexOutOfRangeException($"ChunkData is of Size {ChunkDataSettings.XSize}/{ChunkDataSettings.YSize}/{ChunkDataSettings.ZSize} but you try to access {pos.x}/{pos.y}/{pos.z}");
             }
             #endif
-            VoxelData[pos.x + pos.z * Size.x + pos.y * Size.x * Size.z] = data;
+            fixed (ushort* prt = VoxelData)
+            {
+                var index = pos.x + pos.z * ChunkDataSettings.XSize + pos.y * ChunkDataSettings.XSize * ChunkDataSettings.ZSize;
+                *(prt + index) = data;
+            }
         }
 
         public void SetVoxelData(ushort[,,] data)
         {
             #if UNITY_EDITOR
-            if (Size.x != data.GetLength(0) || Size.y != data.GetLength(1) || Size.z != data.GetLength(2))
+            if (ChunkDataSettings.XSize != data.GetLength(0) || ChunkDataSettings.YSize != data.GetLength(1) || ChunkDataSettings.ZSize != data.GetLength(2))
             {
-                throw new IndexOutOfRangeException($"Expected data of Size {Size.x}/{Size.y}/{Size.z} but got data of size {data.GetLength(0)}/{data.GetLength(1)}/{data.GetLength(2)}");
+                throw new IndexOutOfRangeException($"Expected data of Size {ChunkDataSettings.XSize}/{ChunkDataSettings.YSize}/{ChunkDataSettings.ZSize} but got data of size {data.GetLength(0)}/{data.GetLength(1)}/{data.GetLength(2)}");
             }
             #endif
-            for (var y = 0; y < Size.y; y++)
+            fixed (ushort* prt = VoxelData)
             {
-                for (var z = 0; z < Size.z; z++)
+                var curptr = prt;
+                for (var y = 0; y < ChunkDataSettings.YSize; y++)
                 {
-                    for (var x = 0; x < Size.x; x++)
+                    for (var z = 0; z < ChunkDataSettings.ZSize; z++)
                     {
-                        VoxelData[x + z * Size.x + y * Size.x * Size.z] = data[x, y, z];
+                        for (var x = 0; x < ChunkDataSettings.XSize; x++)
+                        {
+                            var dat = data[x, y, z];
+                            *curptr = dat;
+                            curptr += 1;
+                        }
                     }
                 }
             }
@@ -71,23 +78,32 @@ namespace Assets.Scripts.Chunks
         #region Serialization
         public byte[] SerializeVoxelData()
         {
-            if(Size == default(Vector3Int) || VoxelData == null)
-                return new byte[0];
-            var current = VoxelData[0];
-            ushort counter = 0;
-            var shorts = new List<ushort> {(ushort) Size.x, (ushort) Size.y, (ushort) Size.z};
-            foreach (var vox in VoxelData)
+            ushort current;
+            fixed (ushort* prt = VoxelData)
             {
-                if (current.Equals(vox))
+                current = *prt;
+            }
+            var i = 0;
+            ushort counter = 0;
+            var shorts = new List<ushort> { ChunkDataSettings.XSize, ChunkDataSettings.YSize, ChunkDataSettings.ZSize };
+            fixed (ushort* ptr = VoxelData)
+            {
+                var curptr = ptr;
+                while (i++ < ChunkDataSettings.XSize * ChunkDataSettings.YSize * ChunkDataSettings.ZSize)
                 {
-                    counter++;
-                }
-                else
-                {
-                    shorts.Add(counter);
-                    shorts.Add(current);
-                    current = vox;
-                    counter = 1;
+                    var val = *curptr;
+                    if (current.Equals(val))
+                    {
+                        counter++;
+                    }
+                    else
+                    {
+                        shorts.Add(counter);
+                        shorts.Add(current);
+                        current = *curptr;
+                        counter = 1;
+                    }
+                    curptr += 1;
                 }
             }
             shorts.Add(counter);
@@ -96,22 +112,53 @@ namespace Assets.Scripts.Chunks
             Buffer.BlockCopy(shorts.ToArray(), 0, byteArray, 0, byteArray.Length);
             return byteArray;
         }
-
+        
         public void DeserializeVoxelData(byte[] data)
         {
             var shorts = new ushort[data.Length / 2];
             Buffer.BlockCopy(data, 0, shorts, 0, data.Length);
-            Size = new Vector3Int(shorts[0], shorts[1], shorts[2]);
-            VoxelData = new ushort[Size.x * Size.y * Size.z];
-            var pos = 0;
-            for (var i = 3; i < shorts.Length; i+=2)
+            fixed (ushort* ptr = VoxelData)
             {
-                for (var j = 0; j < shorts[i]; j++)
+                var curptr = ptr;
+                for (var i = 3; i < shorts.Length; i += 2)
                 {
-                    VoxelData[pos++] = shorts[i + 1];
+                    for (var j = 0; j < shorts[i]; j++)
+                    {
+                        *curptr = shorts[i + 1];
+                        curptr += 1;
+                    }
                 }
             }
         }
         #endregion
+    }
+
+    public struct SerializeChunkDataJob : IJob
+    {
+        [ReadOnly]
+        public NativeArray<ChunkData> Chunks;
+        [WriteOnly]
+        public NativeArray<byte> Bytes;
+        [WriteOnly]
+        public NativeArray<int> Index;
+        public void Execute()
+        {
+            var index = 0;
+            for (var i = 0; i < Chunks.Length; i++)
+            {
+                var bytes = Chunks[i].SerializeVoxelData();
+                foreach (var t in bytes)
+                {
+                    Bytes[index++] = t;
+                }
+            }
+            Index[0] = index;
+        }
+    }
+
+    public struct ChunkMetaData
+    {
+        public Vector3Int Size;
+
     }
 }
