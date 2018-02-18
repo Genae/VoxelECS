@@ -74,22 +74,41 @@ namespace Assets.Scripts.Chunks
         #endregion
 
         #region CalculateBorders
-        public bool CalculateBorder(ChunkSide side, bool* border)
+        public bool CalculateBorder(ChunkSide side, bool* border, Vector3Int? pos = null, ushort? data = null)
         {
+            Vector2Int fixPos;
             switch (side)
             {
                 case ChunkSide.Px:
-                    return CalculateBorder(ChunkDataSettings.ZSize, ChunkDataSettings.YSize, ChunkDataSettings.XSize, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, ChunkDataSettings.XSize -1, border);
+                    if (pos == null)
+                        return CalculateBorder(ChunkDataSettings.ZSize, ChunkDataSettings.YSize, ChunkDataSettings.XSize, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, ChunkDataSettings.XSize - 1, border);
+                    fixPos = new Vector2Int(pos.Value.z, pos.Value.y);
+                    return CalculateBorder(border, ChunkDataSettings.ZSize, ChunkDataSettings.YSize, fixPos, data ?? 0);
                 case ChunkSide.Nx:
-                    return CalculateBorder(ChunkDataSettings.ZSize, ChunkDataSettings.YSize, ChunkDataSettings.XSize, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, 0, border);
+                    if (pos == null)
+                        return CalculateBorder(ChunkDataSettings.ZSize, ChunkDataSettings.YSize, ChunkDataSettings.XSize, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, 0, border);
+                    fixPos = new Vector2Int(pos.Value.z, pos.Value.y);
+                    return CalculateBorder(border, ChunkDataSettings.ZSize, ChunkDataSettings.YSize, fixPos, data ?? 0);
                 case ChunkSide.Py:
-                    return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.ZSize, 1, ChunkDataSettings.XSize, (ChunkDataSettings.YSize - 1) * ChunkDataSettings.XSize * ChunkDataSettings.ZSize, border);
+                    if (pos == null)
+                        return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.ZSize, 1, ChunkDataSettings.XSize, (ChunkDataSettings.YSize - 1) * ChunkDataSettings.XSize * ChunkDataSettings.ZSize, border);
+                    fixPos = new Vector2Int(pos.Value.x, pos.Value.z);
+                    return CalculateBorder(border, ChunkDataSettings.XSize, ChunkDataSettings.ZSize, fixPos, data ?? 0);
                 case ChunkSide.Ny:
-                    return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.ZSize, 1, ChunkDataSettings.XSize, 0, border);
+                    if (pos == null)
+                        return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.ZSize, 1, ChunkDataSettings.XSize, 0, border);
+                    fixPos = new Vector2Int(pos.Value.x, pos.Value.z);
+                    return CalculateBorder(border, ChunkDataSettings.XSize, ChunkDataSettings.ZSize, fixPos, data ?? 0);
                 case ChunkSide.Pz:
-                    return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.YSize, 1, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, (ChunkDataSettings.ZSize - 1) * ChunkDataSettings.XSize, border);
+                    if (pos == null)
+                        return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.YSize, 1, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, (ChunkDataSettings.ZSize - 1) * ChunkDataSettings.XSize, border);
+                    fixPos = new Vector2Int(pos.Value.x, pos.Value.y);
+                    return CalculateBorder(border, ChunkDataSettings.XSize, ChunkDataSettings.YSize, fixPos, data ?? 0);
                 case ChunkSide.Nz:
-                    return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.YSize, 1, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, 0, border);
+                    if (pos == null)
+                        return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.YSize, 1, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, 0, border);
+                    fixPos = new Vector2Int(pos.Value.x, pos.Value.y);
+                    return CalculateBorder(border, ChunkDataSettings.XSize, ChunkDataSettings.YSize, fixPos, data ?? 0);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);
             }
@@ -112,6 +131,17 @@ namespace Assets.Scripts.Chunks
                 }
             }
             return solid;
+        }
+
+        private bool CalculateBorder(bool* border, ushort rowMultiplier, ushort columnMultiplier, Vector2Int pos, ushort data)
+        {
+            border[pos.x + pos.y * columnMultiplier] = data != 0;
+            for (var i = 0; i < rowMultiplier * columnMultiplier; i++)
+            {
+                if (border[i] == false)
+                    return false;
+            }
+            return true;
         }
         #endregion
 

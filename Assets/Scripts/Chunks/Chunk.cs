@@ -24,57 +24,67 @@ namespace Assets.Scripts.Chunks
             _data.SetVoxelData(pos, data);
 
             if (pos.x == ChunkDataSettings.XSize-1)
-                RecalculateBorder(ChunkSide.Px);
+                RecalculateBorder(ChunkSide.Px, pos, data);
             if (pos.x == 0)
-                RecalculateBorder(ChunkSide.Nx);
+                RecalculateBorder(ChunkSide.Nx, pos, data);
 
             if (pos.y == ChunkDataSettings.YSize - 1)
-                RecalculateBorder(ChunkSide.Py);
+                RecalculateBorder(ChunkSide.Py, pos, data);
             if (pos.y == 0)
-                RecalculateBorder(ChunkSide.Ny);
+                RecalculateBorder(ChunkSide.Ny, pos, data);
 
             if (pos.z == ChunkDataSettings.ZSize - 1)
-                RecalculateBorder(ChunkSide.Pz);
+                RecalculateBorder(ChunkSide.Pz, pos, data);
             if (pos.z == 0)
-                RecalculateBorder(ChunkSide.Nz);
+                RecalculateBorder(ChunkSide.Nz, pos, data);
         }
 
-        private unsafe void RecalculateBorder(ChunkSide side)
+        public void SetVoxelData(ushort[,,] data)
+        {
+            _data.SetVoxelData(data);
+            RecalculateAllBorders();
+        }
+
+        private void RecalculateAllBorders()
+        {
+            foreach (ChunkSide value in Enum.GetValues(typeof(ChunkSide)))
+            {
+                RecalculateBorder(value);
+            }
+        }
+
+        private unsafe void RecalculateBorder(ChunkSide side, Vector3Int? pos = null, ushort? data = null)
         {
             switch (side)
             {
                 case ChunkSide.Px:
                     fixed(bool* ptr = _metaData.ChunkBorders.Px)
-                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr));
+                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr, pos, data));
                     break;
                 case ChunkSide.Nx:
                     fixed (bool* ptr = _metaData.ChunkBorders.Nx)
-                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr));
+                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr, pos, data));
                     break;
                 case ChunkSide.Py:
                     fixed (bool* ptr = _metaData.ChunkBorders.Py)
-                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr));
+                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr, pos, data));
                     break;
                 case ChunkSide.Ny:
                     fixed (bool* ptr = _metaData.ChunkBorders.Ny)
-                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr));
+                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr, pos, data));
                     break;
                 case ChunkSide.Pz:
                     fixed (bool* ptr = _metaData.ChunkBorders.Pz)
-                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr));
+                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr, pos, data));
                     break;
                 case ChunkSide.Nz:
                     fixed (bool* ptr = _metaData.ChunkBorders.Nz)
-                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr));
+                        _metaData.ChunkBorders.SetBorderSolid(side, _data.CalculateBorder(side, ptr, pos, data));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);
             }
         }
 
-        public void SetVoxelData(ushort[,,] data)
-        {
-            _data.SetVoxelData(data);
-        }
     }
 }
