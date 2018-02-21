@@ -45,12 +45,6 @@ namespace Assets.Scripts.Chunks
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);
             }
         }
-        public void SetOppositeBorderSolid(ChunkSide side, bool solid)
-        {
-            var si = (int)side;
-            si = si % 2 == 0 ? si + 1 : si - 1;
-            SetBorderSolid((ChunkSide)si, solid);
-        }
 
         public void SetBorderSolid(ChunkSide side, bool solid)
         {
