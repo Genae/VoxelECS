@@ -6,6 +6,8 @@ public class TestCube : MonoBehaviour
 {
     private Chunk _chunk;
     private MaterialCollection _collection;
+    public VoxelMaterial OpaqueMaterial;
+    public VoxelMaterial TransparentMaterial;
 
 	// Use this for initialization
 	void Start ()
@@ -18,11 +20,12 @@ public class TestCube : MonoBehaviour
 	        {
 	            for (var z = 1; z < 4; z++)
 	            {
-	                _chunk.SetVoxelData(new Vector3Int(x, y, z), 1, _collection);
+	                _chunk.SetVoxelData(new Vector3Int(x, y, z), _collection.GetId(TransparentMaterial), _collection);
                 }
             }
         }
-	    var builder = gameObject.AddComponent<MeshBuilder>();
+	    _chunk.SetVoxelData(new Vector3Int(2, 2, 2), _collection.GetId(OpaqueMaterial), _collection);
+        var builder = gameObject.AddComponent<MeshBuilder>();
 	    var neigbours = new Dictionary<ChunkSide, Chunk>
 	    {
 	        {ChunkSide.Nx, null},

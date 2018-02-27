@@ -12,6 +12,7 @@ namespace Assets.Scripts.Chunks
     public class MaterialCollection
     {
         public List<LoadedVoxelMaterial> VoxelMaterials;
+        public Dictionary<string, LoadedVoxelMaterial> VoxelMaterialIndex;
         public Dictionary<Material, Atlas> Atlases;
 
         public MaterialCollection()
@@ -26,6 +27,7 @@ namespace Assets.Scripts.Chunks
                     Transparent = true
                 }
             };
+            VoxelMaterialIndex = new Dictionary<string, LoadedVoxelMaterial> {{"Air", VoxelMaterials.First()}};
             LoadAllMaterials();
         }
 
@@ -39,6 +41,8 @@ namespace Assets.Scripts.Chunks
 
         public void LoadVoxelMaterial(VoxelMaterial voxelMaterial)
         {
+            if (VoxelMaterialIndex.ContainsKey(voxelMaterial.name))
+                return;
             var loadedVoxelMaterial = new LoadedVoxelMaterial(voxelMaterial);
             if (!Atlases.ContainsKey(loadedVoxelMaterial.Material))
             {
@@ -48,12 +52,25 @@ namespace Assets.Scripts.Chunks
             {
                 loadedVoxelMaterial.Id = (ushort)VoxelMaterials.Count;
                 VoxelMaterials.Add(loadedVoxelMaterial);
+                VoxelMaterialIndex[voxelMaterial.name] = loadedVoxelMaterial;
             }
         }
 
         public LoadedVoxelMaterial GetById(ushort voxelData)
         {
             return VoxelMaterials[voxelData];
+        }
+
+        public ushort GetId(VoxelMaterial voxelMaterial)
+        {
+            return GetId(voxelMaterial.name);
+        }
+
+        public ushort GetId(string name)
+        {
+            if (!VoxelMaterialIndex.ContainsKey(name))
+                return 0;
+            return VoxelMaterialIndex[name].Id;
         }
     }
 
