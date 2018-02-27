@@ -11,13 +11,15 @@ namespace Assets.Scripts.Chunks
         private MeshCollider _meshCollider;
         private MeshFilter _meshFilter;
 
-        void Start()
+        public void Init()
         {
-            _meshRenderer = gameObject.GetComponent<MeshRenderer>() ?? gameObject.AddComponent<MeshRenderer>();
-            _meshCollider = gameObject.GetComponent<MeshCollider>() ?? gameObject.AddComponent<MeshCollider>();
-            _meshFilter = gameObject.GetComponent<MeshFilter>() ?? gameObject.AddComponent<MeshFilter>();
+            _meshRenderer = gameObject.GetComponent<MeshRenderer>() != null ? gameObject.GetComponent<MeshRenderer>() : gameObject.AddComponent<MeshRenderer>();
+            _meshCollider = gameObject.GetComponent<MeshCollider>() != null ? gameObject.GetComponent<MeshCollider>() : gameObject.AddComponent<MeshCollider>();
+            _meshFilter = gameObject.GetComponent<MeshFilter>() != null ? gameObject.GetComponent<MeshFilter>() : gameObject.AddComponent<MeshFilter>();
         }
-        protected void BuildMesh(MaterialCollection materials, Dictionary<ChunkSide, Chunk> neighbours, Chunk chunk, Vector3Int size)
+        
+
+        public void BuildMesh(MaterialCollection materials, Dictionary<ChunkSide, Chunk> neighbours, Chunk chunk, Vector3Int size)
         {
             List<Vector3> upVoxels;
             var meshdata = GreedyMeshing.CreateMesh(materials, neighbours, chunk, size, out upVoxels);
@@ -37,7 +39,7 @@ namespace Assets.Scripts.Chunks
             for (var i = 0; i < meshdata.Triangles.Keys.Count; i++)
             {
                 Mesh.SetTriangles(meshdata.Triangles[keyArray[i]], i);
-                //myMats[i] = _materials[keyArray[i]];
+                myMats[i] = materials.GetById((ushort)keyArray[i]).Material;
             }
             _meshRenderer.sharedMaterials = myMats;
             _meshFilter.sharedMesh = Mesh;

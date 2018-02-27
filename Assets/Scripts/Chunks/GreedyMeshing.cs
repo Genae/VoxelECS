@@ -22,12 +22,10 @@ namespace Assets.Scripts.Chunks
     }
     public class GreedyMeshing
     {
-        public static unsafe MeshData CreateMesh(MaterialCollection materialCollection, Dictionary<ChunkSide, Chunk> neighbours, Chunk chunk, Vector3Int size, out List<Vector3> upVoxels)
+        public static MeshData CreateMesh(MaterialCollection materialCollection, Dictionary<ChunkSide, Chunk> neighbours, Chunk chunk, Vector3Int size, out List<Vector3> upVoxels)
         {
             //create planes
-            LoadedVoxelMaterial[][][,] planes;
-            bool*[] neighbourBorders = new bool*[6];
-            planes = InitializePlanes(chunk, neighbourBorders, size, materialCollection, out upVoxels);
+            var planes = InitializePlanes(chunk, neighbours, size, materialCollection, out upVoxels);
 
             //Planes to Rects
             var rects = new Rect[6][][];
@@ -57,7 +55,7 @@ namespace Assets.Scripts.Chunks
             return meshData;
         }
 
-        private static unsafe LoadedVoxelMaterial[][][,] InitializePlanes(Chunk chunk, bool*[] borders, Vector3Int size, MaterialCollection materialCollection, out List<Vector3> upVoxels)
+        private static unsafe LoadedVoxelMaterial[][][,] InitializePlanes(Chunk chunk, Dictionary<ChunkSide, Chunk> neigbours, Vector3Int size, MaterialCollection materialCollection, out List<Vector3> upVoxels)
         {
             //initialize Plane Arrays
             upVoxels = new List<Vector3>();
@@ -80,36 +78,36 @@ namespace Assets.Scripts.Chunks
                         var material = materialCollection.GetById(id);
                         if (id != 0)
                         {
-                            if (x == size.x - 1 && !borders[0][z + y * size.z] || x != size.x - 1 && IsTransparent(x + 1, y, z, chunk, materialCollection)) //px
+                            if (x == size.x - 1 && IsTransparent(0, y, z, neigbours[ChunkSide.Px], materialCollection, material) || x != size.x - 1 && IsTransparent(x + 1, y, z, chunk, materialCollection, material)) //px
                             {
                                 planes[0][x][z, y] = material;
                             }
-                            if (x == 0 && !borders[1][z + y * size.z] || x != 0 && IsTransparent(x - 1, y, z, chunk, materialCollection)) //nx
+                            if (x == 0 && IsTransparent(size.x - 1, y, z, neigbours[ChunkSide.Nx], materialCollection, material) || x != 0 && IsTransparent(x - 1, y, z, chunk, materialCollection, material)) //nx
                             {
                                 planes[1][x][z, y] = material;
                             }
-                            if (z == size.z - 1 && !borders[2][x + y * size.x] || z != size.z - 1 && IsTransparent(x, y, z + 1, chunk, materialCollection)) //pz
+                            if (z == size.z - 1 && IsTransparent(x, y, 0, neigbours[ChunkSide.Pz], materialCollection, material) || z != size.z - 1 && IsTransparent(x, y, z + 1, chunk, materialCollection, material)) //pz
                             {
                                 planes[2][z][x, y] = material;
                             }
-                            if (z == 0 && !borders[3][x + y * size.x] || z != 0 && IsTransparent(x, y, z - 1, chunk, materialCollection)) //nz
+                            if (z == 0 && IsTransparent(x, y, size.z-1, neigbours[ChunkSide.Nz], materialCollection, material) || z != 0 && IsTransparent(x, y, z - 1, chunk, materialCollection, material)) //nz
                             {
                                 planes[3][z][x, y] = material;
                             }
-                            if (y == size.y - 1 && !borders[4][x + z * size.x] || y != size.y - 1 && IsTransparent(x, y + 1, z, chunk, materialCollection)) //py
+                            if (y == size.y - 1 && IsTransparent(x, 0, z, neigbours[ChunkSide.Py], materialCollection, material) || y != size.y - 1 && IsTransparent(x, y + 1, z, chunk, materialCollection, material)) //py
                             {
-                                if (y < size.y - 1)
+                                if (y < size.y - 1 && chunk.GetVoxelData(new Vector3Int(x, y + 1, z)) == 0)
                                     upVoxels.Add(new Vector3(x, y + 1, z));
                                 planes[4][y][x, z] = material;
                             }
-                            if (y == 0 && !borders[5][x + z * size.x] || y != 0 && IsTransparent(x, y - 1, z, chunk, materialCollection)) //ny
+                            if (y == 0 && IsTransparent(x, size.y - 1, z, neigbours[ChunkSide.Ny], materialCollection, material) || y != 0 && IsTransparent(x, y - 1, z, chunk, materialCollection, material)) //ny
                             {
                                 planes[5][y][x, z] = material;
                             }
                         }
                         else
                         {
-                            if (y == 0 && borders[5][x + z * size.x])
+                            if (y == 0 && (neigbours[ChunkSide.Ny] == null || neigbours[ChunkSide.Ny].GetVoxelData(new Vector3Int(x, size.y - 1, z)) == 0))
                             {
                                 upVoxels.Add(new Vector3(x, y, z));
                             }
@@ -120,10 +118,14 @@ namespace Assets.Scripts.Chunks
             return planes;
         }
 
-        private static bool IsTransparent(int x, int y, int z, Chunk chunk, MaterialCollection mat)
+        private static bool IsTransparent(int x, int y, int z, Chunk chunk, MaterialCollection matCol, LoadedVoxelMaterial mat)
         {
+            if (chunk == null)
+                return true;
             var id = chunk.GetVoxelData(new Vector3Int(x, y, z));
-            return id == 0 || mat.GetById(id).Transparent;
+            if (id == mat.Id)
+                return false;
+            return id == 0 || matCol.GetById(id).Transparent;
         }
 
         public static Rect[] CreateRectsForPlane(LoadedVoxelMaterial[,] plane)
@@ -221,23 +223,23 @@ namespace Assets.Scripts.Chunks
                         vertB = new Vector3(depth - 0.5f + side - 0, rect.X - 0.5f + rect.Width, rect.Y - 0.5f + rect.Height);
                         vertC = new Vector3(depth - 0.5f + side - 0, rect.X - 0.5f, rect.Y - 0.5f);
                         vertD = new Vector3(depth - 0.5f + side - 0, rect.X - 0.5f, rect.Y - 0.5f + rect.Height);
-                        norm = new Vector3(side % 2 != 0 ? 1 : -1, 0, 0);
+                        norm = new Vector3(side % 2 != 0 ? -1 : 1, 0, 0);
                         break;
                     case 2:
                     case 3:
-                        vertA = new Vector3(rect.X - 0.5f + rect.Width, depth - 0.5f + side - 2, rect.Y - 0.5f);
-                        vertB = new Vector3(rect.X - 0.5f + rect.Width, depth - 0.5f + side - 2, rect.Y - 0.5f + rect.Height);
-                        vertC = new Vector3(rect.X - 0.5f, depth - 0.5f + side - 2, rect.Y - 0.5f);
-                        vertD = new Vector3(rect.X - 0.5f, depth - 0.5f + side - 2, rect.Y - 0.5f + rect.Height);
-                        norm = new Vector3(0, side % 2 != 0 ? 1 : -1, 0);
-                        break;
-                    case 4:
-                    case 5:
                         vertA = new Vector3(rect.X - 0.5f + rect.Width, rect.Y - 0.5f, depth - 0.5f + side - 4);
                         vertB = new Vector3(rect.X - 0.5f + rect.Width, rect.Y - 0.5f + rect.Height, depth - 0.5f + side - 4);
                         vertC = new Vector3(rect.X - 0.5f, rect.Y - 0.5f, depth - 0.5f + side - 4);
                         vertD = new Vector3(rect.X - 0.5f, rect.Y - 0.5f + rect.Height, depth - 0.5f + side - 4);
-                        norm = new Vector3(0, 0, side % 2 != 0 ? 1 : -1);
+                        norm = new Vector3(0, 0, side % 2 != 0 ? -1 : 1);
+                        break;
+                    case 4:
+                    case 5:
+                        vertA = new Vector3(rect.X - 0.5f + rect.Width, depth - 0.5f + side - 2, rect.Y - 0.5f);
+                        vertB = new Vector3(rect.X - 0.5f + rect.Width, depth - 0.5f + side - 2, rect.Y - 0.5f + rect.Height);
+                        vertC = new Vector3(rect.X - 0.5f, depth - 0.5f + side - 2, rect.Y - 0.5f);
+                        vertD = new Vector3(rect.X - 0.5f, depth - 0.5f + side - 2, rect.Y - 0.5f + rect.Height);
+                        norm = new Vector3(0, side % 2 != 0 ? -1 : 1, 0);
                         break;
                 }
 
