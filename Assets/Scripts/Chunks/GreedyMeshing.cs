@@ -55,7 +55,7 @@ namespace Assets.Scripts.Chunks
             return meshData;
         }
 
-        private static unsafe LoadedVoxelMaterial[][][,] InitializePlanes(Chunk chunk, Dictionary<ChunkSide, Chunk> neigbours, Vector3Int size, MaterialCollection materialCollection, out List<Vector3> upVoxels)
+        private static LoadedVoxelMaterial[][][,] InitializePlanes(Chunk chunk, Dictionary<ChunkSide, Chunk> neigbours, Vector3Int size, MaterialCollection materialCollection, out List<Vector3> upVoxels)
         {
             //initialize Plane Arrays
             upVoxels = new List<Vector3>();
@@ -223,23 +223,23 @@ namespace Assets.Scripts.Chunks
                         vertB = new Vector3(depth - 0.5f + side - 0, rect.X - 0.5f + rect.Width, rect.Y - 0.5f + rect.Height);
                         vertC = new Vector3(depth - 0.5f + side - 0, rect.X - 0.5f, rect.Y - 0.5f);
                         vertD = new Vector3(depth - 0.5f + side - 0, rect.X - 0.5f, rect.Y - 0.5f + rect.Height);
-                        norm = new Vector3(side % 2 != 0 ? -1 : 1, 0, 0);
+                        norm = new Vector3(side % 2 != 0 ? 1 : -1, 0, 0);
                         break;
                     case 2:
                     case 3:
-                        vertA = new Vector3(rect.X - 0.5f + rect.Width, rect.Y - 0.5f, depth - 0.5f + side - 4);
-                        vertB = new Vector3(rect.X - 0.5f + rect.Width, rect.Y - 0.5f + rect.Height, depth - 0.5f + side - 4);
-                        vertC = new Vector3(rect.X - 0.5f, rect.Y - 0.5f, depth - 0.5f + side - 4);
-                        vertD = new Vector3(rect.X - 0.5f, rect.Y - 0.5f + rect.Height, depth - 0.5f + side - 4);
+                        vertA = new Vector3(rect.X - 0.5f + rect.Width, rect.Y - 0.5f, depth - 0.5f + side - 2);
+                        vertB = new Vector3(rect.X - 0.5f, rect.Y - 0.5f, depth - 0.5f + side - 2);
+                        vertC = new Vector3(rect.X - 0.5f + rect.Width, rect.Y - 0.5f + rect.Height, depth - 0.5f + side - 2);
+                        vertD = new Vector3(rect.X - 0.5f, rect.Y - 0.5f + rect.Height, depth - 0.5f + side - 2);
                         norm = new Vector3(0, 0, side % 2 != 0 ? -1 : 1);
                         break;
                     case 4:
                     case 5:
-                        vertA = new Vector3(rect.X - 0.5f + rect.Width, depth - 0.5f + side - 2, rect.Y - 0.5f);
-                        vertB = new Vector3(rect.X - 0.5f + rect.Width, depth - 0.5f + side - 2, rect.Y - 0.5f + rect.Height);
-                        vertC = new Vector3(rect.X - 0.5f, depth - 0.5f + side - 2, rect.Y - 0.5f);
-                        vertD = new Vector3(rect.X - 0.5f, depth - 0.5f + side - 2, rect.Y - 0.5f + rect.Height);
-                        norm = new Vector3(0, side % 2 != 0 ? -1 : 1, 0);
+                        vertA = new Vector3(rect.X - 0.5f + rect.Width, depth - 0.5f + side - 4, rect.Y - 0.5f);
+                        vertB = new Vector3(rect.X - 0.5f, depth - 0.5f + side - 4, rect.Y - 0.5f);
+                        vertC = new Vector3(rect.X - 0.5f + rect.Width, depth - 0.5f + side - 4, rect.Y - 0.5f + rect.Height);
+                        vertD = new Vector3(rect.X - 0.5f, depth - 0.5f + side - 4, rect.Y - 0.5f + rect.Height);
+                        norm = new Vector3(0, side % 2 != 0 ? 1 : -1, 0);
                         break;
                 }
 
