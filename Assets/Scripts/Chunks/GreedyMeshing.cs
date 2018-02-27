@@ -219,27 +219,27 @@ namespace Assets.Scripts.Chunks
                 {
                     case 0:
                     case 1:
-                        vertA = new Vector3(depth - 0.5f + side - 0, rect.X - 0.5f + rect.Width, rect.Y - 0.5f);
-                        vertB = new Vector3(depth - 0.5f + side - 0, rect.X - 0.5f + rect.Width, rect.Y - 0.5f + rect.Height);
-                        vertC = new Vector3(depth - 0.5f + side - 0, rect.X - 0.5f, rect.Y - 0.5f);
-                        vertD = new Vector3(depth - 0.5f + side - 0, rect.X - 0.5f, rect.Y - 0.5f + rect.Height);
-                        norm = new Vector3(side % 2 != 0 ? 1 : -1, 0, 0);
+                        vertA = new Vector3(depth + 0.5f - side, rect.X - 0.5f + rect.Width, rect.Y - 0.5f);
+                        vertB = new Vector3(depth + 0.5f - side, rect.X - 0.5f + rect.Width, rect.Y - 0.5f + rect.Height);
+                        vertC = new Vector3(depth + 0.5f - side, rect.X - 0.5f, rect.Y - 0.5f);
+                        vertD = new Vector3(depth + 0.5f - side, rect.X - 0.5f, rect.Y - 0.5f + rect.Height);
+                        norm = new Vector3(side % 2 != 0 ? -1 : 1, 0, 0);
                         break;
                     case 2:
                     case 3:
-                        vertA = new Vector3(rect.X - 0.5f + rect.Width, rect.Y - 0.5f, depth - 0.5f + side - 2);
-                        vertB = new Vector3(rect.X - 0.5f, rect.Y - 0.5f, depth - 0.5f + side - 2);
-                        vertC = new Vector3(rect.X - 0.5f + rect.Width, rect.Y - 0.5f + rect.Height, depth - 0.5f + side - 2);
-                        vertD = new Vector3(rect.X - 0.5f, rect.Y - 0.5f + rect.Height, depth - 0.5f + side - 2);
+                        vertA = new Vector3(rect.X - 0.5f + rect.Width, rect.Y - 0.5f, depth + 0.5f - side % 2);
+                        vertB = new Vector3(rect.X - 0.5f + rect.Width, rect.Y - 0.5f + rect.Height, depth + 0.5f - side % 2);
+                        vertC = new Vector3(rect.X - 0.5f, rect.Y - 0.5f, depth + 0.5f - side % 2);
+                        vertD = new Vector3(rect.X - 0.5f, rect.Y - 0.5f + rect.Height, depth + 0.5f - side % 2);
                         norm = new Vector3(0, 0, side % 2 != 0 ? -1 : 1);
                         break;
                     case 4:
                     case 5:
-                        vertA = new Vector3(rect.X - 0.5f + rect.Width, depth - 0.5f + side - 4, rect.Y - 0.5f);
-                        vertB = new Vector3(rect.X - 0.5f, depth - 0.5f + side - 4, rect.Y - 0.5f);
-                        vertC = new Vector3(rect.X - 0.5f + rect.Width, depth - 0.5f + side - 4, rect.Y - 0.5f + rect.Height);
-                        vertD = new Vector3(rect.X - 0.5f, depth - 0.5f + side - 4, rect.Y - 0.5f + rect.Height);
-                        norm = new Vector3(0, side % 2 != 0 ? 1 : -1, 0);
+                        vertA = new Vector3(rect.X - 0.5f, depth + 0.5f - side % 2, rect.Y - 0.5f + rect.Height);
+                        vertB = new Vector3(rect.X - 0.5f + rect.Width, depth + 0.5f - side % 2, rect.Y - 0.5f + rect.Height);
+                        vertC = new Vector3(rect.X - 0.5f, depth + 0.5f - side % 2, rect.Y - 0.5f);
+                        vertD = new Vector3(rect.X - 0.5f + rect.Width, depth + 0.5f - side % 2, rect.Y - 0.5f);
+                        norm = new Vector3(0, side % 2 != 0 ? -1 : 1, 0);
                         break;
                 }
 
@@ -262,7 +262,7 @@ namespace Assets.Scripts.Chunks
                 if (!triangles.ContainsKey(rect.Type.Id))
                     triangles[rect.Type.Id] = new List<int>();
 
-                if (side == 5 || side == 2 || side == 1)
+                if (side % 2 == 0)
                 {
                     triangles[rect.Type.Id].AddRange(new[]
                     {

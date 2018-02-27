@@ -12,7 +12,16 @@ public class TestCube : MonoBehaviour
 	{
         _collection = new MaterialCollection();
 	    _chunk = new Chunk();
-	    _chunk.SetVoxelData(new Vector3Int(1, 1, 1), 1, _collection);
+	    for (var x = 1; x < 4; x++)
+	    {
+	        for (var y = 1; y < 4; y++)
+	        {
+	            for (var z = 1; z < 4; z++)
+	            {
+	                _chunk.SetVoxelData(new Vector3Int(x, y, z), 1, _collection);
+                }
+            }
+        }
 	    var builder = gameObject.AddComponent<MeshBuilder>();
 	    var neigbours = new Dictionary<ChunkSide, Chunk>
 	    {
