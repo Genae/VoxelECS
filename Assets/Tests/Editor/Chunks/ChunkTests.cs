@@ -81,7 +81,7 @@ namespace Assets.Tests.Editor.Chunks
                 }
             }
             Assert.True(chunk.GetBorderSolid(ChunkSide.Nx));
-            Assert.True(chunk.GetOppositeBorderSolid(ChunkSide.Px));
+            Assert.True(chunk.GetBorderSolid(ChunkSide.Px.OppositeSite()));
 
             chunk.SetVoxelData(new Vector3Int(0, 0, 0), 0);
             Assert.True(!chunk.GetBorderSolid(ChunkSide.Nx));
@@ -97,7 +97,7 @@ namespace Assets.Tests.Editor.Chunks
                 }
             }
             Assert.True(chunk.GetBorderSolid(ChunkSide.Px));
-            Assert.True(chunk.GetOppositeBorderSolid(ChunkSide.Nx));
+            Assert.True(chunk.GetBorderSolid(ChunkSide.Nx.OppositeSite()));
 
             chunk.SetVoxelData(new Vector3Int(ChunkDataSettings.XSize - 1, ChunkDataSettings.YSize - 1, ChunkDataSettings.ZSize - 1), 0);
             Assert.True(!chunk.GetBorderSolid(ChunkSide.Px));
@@ -113,7 +113,7 @@ namespace Assets.Tests.Editor.Chunks
                 }
             }
             Assert.True(chunk.GetBorderSolid(ChunkSide.Nz));
-            Assert.True(chunk.GetOppositeBorderSolid(ChunkSide.Pz));
+            Assert.True(chunk.GetBorderSolid(ChunkSide.Pz.OppositeSite()));
 
             chunk.SetVoxelData(new Vector3Int(0, 0, 0), 0);
             Assert.True(!chunk.GetBorderSolid(ChunkSide.Nz));
@@ -129,7 +129,7 @@ namespace Assets.Tests.Editor.Chunks
                 }
             }
             Assert.True(chunk.GetBorderSolid(ChunkSide.Pz));
-            Assert.True(chunk.GetOppositeBorderSolid(ChunkSide.Nz));
+            Assert.True(chunk.GetBorderSolid(ChunkSide.Nz.OppositeSite()));
 
             chunk.SetVoxelData(new Vector3Int(ChunkDataSettings.XSize - 1, ChunkDataSettings.YSize - 1, ChunkDataSettings.ZSize - 1), 0);
             Assert.True(!chunk.GetBorderSolid(ChunkSide.Pz));
@@ -145,7 +145,7 @@ namespace Assets.Tests.Editor.Chunks
                 }
             }
             Assert.True(chunk.GetBorderSolid(ChunkSide.Ny));
-            Assert.True(chunk.GetOppositeBorderSolid(ChunkSide.Py));
+            Assert.True(chunk.GetBorderSolid(ChunkSide.Py.OppositeSite()));
 
             chunk.SetVoxelData(new Vector3Int(0, 0, 0), 0);
             Assert.True(!chunk.GetBorderSolid(ChunkSide.Ny));
@@ -161,7 +161,7 @@ namespace Assets.Tests.Editor.Chunks
                 }
             }
             Assert.True(chunk.GetBorderSolid(ChunkSide.Py));
-            Assert.True(chunk.GetOppositeBorderSolid(ChunkSide.Ny));
+            Assert.True(chunk.GetBorderSolid(ChunkSide.Ny.OppositeSite()));
 
             chunk.SetVoxelData(new Vector3Int(ChunkDataSettings.XSize - 1, ChunkDataSettings.YSize - 1, ChunkDataSettings.ZSize - 1), 0);
             Assert.True(!chunk.GetBorderSolid(ChunkSide.Py));

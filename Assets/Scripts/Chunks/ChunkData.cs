@@ -9,6 +9,11 @@ namespace Assets.Scripts.Chunks
         public const ushort XSize = 16;
         public const ushort YSize = 16;
         public const ushort ZSize = 16;
+
+        public static ushort GetSizeBySide(ChunkSide side)
+        {
+            return (int) side < 2 ? XSize : ((int) side < 4 ? YSize : ZSize);
+        }
     }
 
     public unsafe struct ChunkData

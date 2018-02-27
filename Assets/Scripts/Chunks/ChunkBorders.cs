@@ -18,13 +18,6 @@ namespace Assets.Scripts.Chunks
         private bool _pzSolid;
         private bool _nzSolid;
         
-        public bool GetOppositeBorderSolid(ChunkSide side)
-        {
-            var si = (int)side;
-            si = si % 2 == 0 ? si + 1 : si - 1;
-            return GetBorderSolid((ChunkSide)si);
-        }
-
         public bool GetBorderSolid(ChunkSide side)
         {
             switch (side)
@@ -45,7 +38,7 @@ namespace Assets.Scripts.Chunks
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);
             }
         }
-
+        
         public void SetBorderSolid(ChunkSide side, bool solid)
         {
             switch (side)
@@ -72,15 +65,5 @@ namespace Assets.Scripts.Chunks
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);
             }
         }
-    }
-    
-    public enum ChunkSide
-    {
-        Px,
-        Nx,
-        Py,
-        Ny,
-        Pz,
-        Nz
     }
 }

@@ -1,19 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 namespace Assets.Scripts.Chunks
 {
     public class Chunk
     {
-        private ChunkMetaData _metaData;
+        public ChunkMetaData MetaData;
         private ChunkData _data;
 
         public Chunk()
         {
             _data = new ChunkData();
-            _metaData = new ChunkMetaData();
+            MetaData = new ChunkMetaData();
         }
 
         public ushort GetVoxelData(Vector3Int pos)
@@ -58,13 +57,9 @@ namespace Assets.Scripts.Chunks
 
         public bool GetBorderSolid(ChunkSide side)
         {
-            return _metaData.ChunkBorders.GetBorderSolid(side);
+            return MetaData.ChunkBorders.GetBorderSolid(side);
         }
-        public bool GetOppositeBorderSolid(ChunkSide side)
-        {
-            return _metaData.ChunkBorders.GetOppositeBorderSolid(side);
-        }
-
+        
         #region BorderCalculation
         private List<ChunkSide> RecalculateAllBorders()
         {
@@ -86,45 +81,45 @@ namespace Assets.Scripts.Chunks
             switch (side)
             {
                 case ChunkSide.Px:
-                    fixed (bool* ptr = _metaData.ChunkBorders.Px)
+                    fixed (bool* ptr = MetaData.ChunkBorders.Px)
                     {
                         ret = _data.CalculateBorder(side, ptr, out solid, pos, data);
-                        _metaData.ChunkBorders.SetBorderSolid(side, solid);
+                        MetaData.ChunkBorders.SetBorderSolid(side, solid);
                     }
                     break;
                 case ChunkSide.Nx:
-                    fixed (bool* ptr = _metaData.ChunkBorders.Nx)
+                    fixed (bool* ptr = MetaData.ChunkBorders.Nx)
                     {
                         ret = _data.CalculateBorder(side, ptr, out solid, pos, data);
-                        _metaData.ChunkBorders.SetBorderSolid(side, solid);
+                        MetaData.ChunkBorders.SetBorderSolid(side, solid);
                     }
                     break;
                 case ChunkSide.Py:
-                    fixed (bool* ptr = _metaData.ChunkBorders.Py)
+                    fixed (bool* ptr = MetaData.ChunkBorders.Py)
                     {
                         ret = _data.CalculateBorder(side, ptr, out solid, pos, data);
-                        _metaData.ChunkBorders.SetBorderSolid(side, solid);
+                        MetaData.ChunkBorders.SetBorderSolid(side, solid);
                     }
                     break;
                 case ChunkSide.Ny:
-                    fixed (bool* ptr = _metaData.ChunkBorders.Ny)
+                    fixed (bool* ptr = MetaData.ChunkBorders.Ny)
                     {
                         ret = _data.CalculateBorder(side, ptr, out solid, pos, data);
-                        _metaData.ChunkBorders.SetBorderSolid(side, solid);
+                        MetaData.ChunkBorders.SetBorderSolid(side, solid);
                     }
                     break;
                 case ChunkSide.Pz:
-                    fixed (bool* ptr = _metaData.ChunkBorders.Pz)
+                    fixed (bool* ptr = MetaData.ChunkBorders.Pz)
                     {
                         ret = _data.CalculateBorder(side, ptr, out solid, pos, data);
-                        _metaData.ChunkBorders.SetBorderSolid(side, solid);
+                        MetaData.ChunkBorders.SetBorderSolid(side, solid);
                     }
                     break;
                 case ChunkSide.Nz:
-                    fixed (bool* ptr = _metaData.ChunkBorders.Nz)
+                    fixed (bool* ptr = MetaData.ChunkBorders.Nz)
                     {
                         ret = _data.CalculateBorder(side, ptr, out solid, pos, data);
-                        _metaData.ChunkBorders.SetBorderSolid(side, solid);
+                        MetaData.ChunkBorders.SetBorderSolid(side, solid);
                     }
                     break;
                 default:
@@ -133,5 +128,6 @@ namespace Assets.Scripts.Chunks
             return ret;
         }
         #endregion
+
     }
 }
