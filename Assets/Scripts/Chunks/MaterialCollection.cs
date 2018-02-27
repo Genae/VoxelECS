@@ -9,9 +9,26 @@ namespace Assets.Scripts.Chunks
     {
         public LoadedVoxelMaterial[] Materials;
 
+        public MaterialCollection()
+        {
+            Materials = new LoadedVoxelMaterial[2];
+            Materials[0] = new LoadedVoxelMaterial(new VoxelMaterial())
+            {
+                AtlasPosition = 0,
+                Id = 0,
+                Transparent = true,
+            };
+            Materials[1] = new LoadedVoxelMaterial(new VoxelMaterial())
+            {
+                AtlasPosition = 0,
+                Id = 1,
+                Transparent = false,
+            };
+        }
+
         public LoadedVoxelMaterial GetById(ushort voxelData)
         {
-            return new LoadedVoxelMaterial(new VoxelMaterial());
+            return Materials[voxelData];
         }
     }
 

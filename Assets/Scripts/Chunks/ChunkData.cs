@@ -77,84 +77,7 @@ namespace Assets.Scripts.Chunks
             }
         }
         #endregion
-
-        #region CalculateBorders
-        public bool CalculateBorder(ChunkSide side, bool* border, out bool solid, Vector3Int? pos = null, ushort? data = null)
-        {
-            Vector2Int fixPos;
-            switch (side)
-            {
-                case ChunkSide.Px:
-                    if (pos == null)
-                        return CalculateBorder(ChunkDataSettings.ZSize, ChunkDataSettings.YSize, ChunkDataSettings.XSize, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, ChunkDataSettings.XSize - 1, border, out solid);
-                    fixPos = new Vector2Int(pos.Value.z, pos.Value.y);
-                    return CalculateBorder(border, ChunkDataSettings.ZSize, ChunkDataSettings.YSize, fixPos, data ?? 0, out solid);
-                case ChunkSide.Nx:
-                    if (pos == null)
-                        return CalculateBorder(ChunkDataSettings.ZSize, ChunkDataSettings.YSize, ChunkDataSettings.XSize, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, 0, border, out solid);
-                    fixPos = new Vector2Int(pos.Value.z, pos.Value.y);
-                    return CalculateBorder(border, ChunkDataSettings.ZSize, ChunkDataSettings.YSize, fixPos, data ?? 0, out solid);
-                case ChunkSide.Py:
-                    if (pos == null)
-                        return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.ZSize, 1, ChunkDataSettings.XSize, (ChunkDataSettings.YSize - 1) * ChunkDataSettings.XSize * ChunkDataSettings.ZSize, border, out solid);
-                    fixPos = new Vector2Int(pos.Value.x, pos.Value.z);
-                    return CalculateBorder(border, ChunkDataSettings.XSize, ChunkDataSettings.ZSize, fixPos, data ?? 0, out solid);
-                case ChunkSide.Ny:
-                    if (pos == null)
-                        return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.ZSize, 1, ChunkDataSettings.XSize, 0, border, out solid);
-                    fixPos = new Vector2Int(pos.Value.x, pos.Value.z);
-                    return CalculateBorder(border, ChunkDataSettings.XSize, ChunkDataSettings.ZSize, fixPos, data ?? 0, out solid);
-                case ChunkSide.Pz:
-                    if (pos == null)
-                        return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.YSize, 1, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, (ChunkDataSettings.ZSize - 1) * ChunkDataSettings.XSize, border, out solid);
-                    fixPos = new Vector2Int(pos.Value.x, pos.Value.y);
-                    return CalculateBorder(border, ChunkDataSettings.XSize, ChunkDataSettings.YSize, fixPos, data ?? 0, out solid);
-                case ChunkSide.Nz:
-                    if (pos == null)
-                        return CalculateBorder(ChunkDataSettings.XSize, ChunkDataSettings.YSize, 1, ChunkDataSettings.XSize * ChunkDataSettings.ZSize, 0, border, out solid);
-                    fixPos = new Vector2Int(pos.Value.x, pos.Value.y);
-                    return CalculateBorder(border, ChunkDataSettings.XSize, ChunkDataSettings.YSize, fixPos, data ?? 0, out solid);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(side), side, null);
-            }
-        }
-
-        private bool CalculateBorder(ushort rowMax, ushort columnMax, ushort rowMultiplier, int columnMultiplier, ushort offset, bool* border, out bool solid)
-        {
-            var changed = false;
-            solid = true;
-            var i = 0;
-            fixed (ushort* ptr = VoxelData)
-            {
-                for (var c = 0; c < columnMax; c++)
-                {
-                    for (var r = 0; r < rowMax; r++)
-                    {
-                        var s = *(ptr + c * columnMultiplier + r * rowMultiplier + offset) != 0;
-                        changed = changed || border[i] != s;
-                        solid = solid && s;
-                        border[i++] = s;
-                    }
-                }
-            }
-            return changed;
-        }
-
-        private bool CalculateBorder(bool* border, ushort rowMultiplier, ushort columnMultiplier, Vector2Int pos, ushort data, out bool solid)
-        {
-            solid = false;
-            var changed = border[pos.x + pos.y * columnMultiplier] != (data != 0);
-            border[pos.x + pos.y * columnMultiplier] = data != 0;
-            for (var i = 0; i < rowMultiplier * columnMultiplier; i++)
-            {
-                if (border[i] == false)
-                    return changed;
-            }
-            solid = true;
-            return changed;
-        }
-        #endregion
-
+        
         #region Serialization
         public byte[] SerializeVoxelData()
         {
@@ -212,28 +135,4 @@ namespace Assets.Scripts.Chunks
         }
         #endregion
     }
-
-    /*
-    public struct SerializeChunkDataJob : IJob
-    {
-        [ReadOnly]
-        public NativeArray<ChunkData> Chunks;
-        [WriteOnly]
-        public NativeArray<byte> Bytes;
-        [WriteOnly]
-        public NativeArray<int> Index;
-        public void Execute()
-        {
-            var index = 0;
-            for (var i = 0; i < Chunks.Length; i++)
-            {
-                var bytes = Chunks[i].SerializeVoxelData();
-                foreach (var t in bytes)
-                {
-                    Bytes[index++] = t;
-                }
-            }
-            Index[0] = index;
-        }
-    }*/
 }

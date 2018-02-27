@@ -126,10 +126,10 @@ namespace Assets.Tests.Editor.Chunks
 
             Debug.Log("Serialized Data Size in bytes: " + bytes.SelectMany(b => b).ToArray().Length);
 
-            Assert.LessOrEqual(timeW, 200);
-            Assert.LessOrEqual(timeR, 200);
-            Assert.LessOrEqual(timeS, 500);
-            Assert.LessOrEqual(timeD, 500);
+            Assert.LessOrEqual(timeW, 400);
+            Assert.LessOrEqual(timeR, 400);
+            Assert.LessOrEqual(timeS, 1000);
+            Assert.LessOrEqual(timeD, 1000);
         }
     }
 }

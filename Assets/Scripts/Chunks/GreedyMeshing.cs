@@ -27,32 +27,7 @@ namespace Assets.Scripts.Chunks
             //create planes
             LoadedVoxelMaterial[][][,] planes;
             bool*[] neighbourBorders = new bool*[6];
-            fixed (bool* px = neighbours[ChunkSide.Nx].MetaData.ChunkBorders.Px)
-            {
-                neighbourBorders[0] = px;
-                fixed (bool* nx = neighbours[ChunkSide.Px].MetaData.ChunkBorders.Nx)
-                {
-                    neighbourBorders[1] = nx;
-                    fixed (bool* pz = neighbours[ChunkSide.Nz].MetaData.ChunkBorders.Pz)
-                    {
-                        neighbourBorders[2] = pz;
-                        fixed (bool* nz = neighbours[ChunkSide.Pz].MetaData.ChunkBorders.Nz)
-                        {
-                            neighbourBorders[3] = nz;
-                            fixed (bool* py = neighbours[ChunkSide.Ny].MetaData.ChunkBorders.Py)
-                            {
-                                neighbourBorders[4] = py;
-                                fixed (bool* ny = neighbours[ChunkSide.Py].MetaData.ChunkBorders.Ny)
-                                {
-                                    neighbourBorders[5] = ny;
-                                    planes = InitializePlanes(chunk, neighbourBorders, size, materialCollection, out upVoxels);
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }
+            planes = InitializePlanes(chunk, neighbourBorders, size, materialCollection, out upVoxels);
 
             //Planes to Rects
             var rects = new Rect[6][][];
