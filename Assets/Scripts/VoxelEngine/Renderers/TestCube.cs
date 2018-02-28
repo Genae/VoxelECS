@@ -17,11 +17,11 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             var go = new GameObject("map");
             var cloud = go.AddComponent<ChunkCloud>();
             cloud.Init(_collection);
-            for (var x = -1; x < 4; x++)
+            for (var x = -1; x < 1; x++)
             {
-                for (var y = -1; y < 4; y++)
+                for (var y = -1; y < 1; y++)
                 {
-                    for (var z = -1; z < 4; z++)
+                    for (var z = -1; z < 1; z++)
                     {
                         cloud.SetVoxel(TransparentMaterial, new Vector3Int(x, y, z));
                     }

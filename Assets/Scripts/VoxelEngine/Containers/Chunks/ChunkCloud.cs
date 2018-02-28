@@ -46,7 +46,7 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
             _chunksMeshes[cx, cy, cz].BuildMesh(_materialCollection, GetNeighbours(cx, cy, cz), _chunks[cx, cy, cz]);
             foreach (var neighbour in neighbours)
             {
-                var nPos = GetNeighbourPos(pos, neighbour);
+                var nPos = GetNeighbourPos(cx, cy, cz, neighbour);
                 if (_chunksMeshes[nPos.x, nPos.y, nPos.z] != null)
                 {
                     _chunksMeshes[nPos.x, nPos.y, nPos.z].BuildMesh(_materialCollection, GetNeighbours(nPos.x, nPos.y, nPos.z), _chunks[nPos.x, nPos.y, nPos.z]);
@@ -72,22 +72,22 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
             };
         }
 
-        private Vector3Int GetNeighbourPos(Vector3Int pos, ChunkSide side)
+        private Vector3Int GetNeighbourPos(int cx, int cy, int cz, ChunkSide side)
         {
             switch (side)
             {
                 case ChunkSide.Px:
-                    return pos + new Vector3Int(1, 0, 0);
+                    return new Vector3Int(cx + 1, cy, cz);
                 case ChunkSide.Nx:
-                    return pos - new Vector3Int(1, 0, 0);
+                    return new Vector3Int(cx - 1, cy, cz);
                 case ChunkSide.Py:
-                    return pos + new Vector3Int(0, 1, 0);
+                    return new Vector3Int(cx, cy + 1, cz);
                 case ChunkSide.Ny:
-                    return pos - new Vector3Int(0, 1, 0);
+                    return new Vector3Int(cx, cy - 1, cz);
                 case ChunkSide.Pz:
-                    return pos + new Vector3Int(0, 0, 1);
+                    return new Vector3Int(cx, cy, cz + 1);
                 case ChunkSide.Nz:
-                    return pos - new Vector3Int(0, 0, 1);
+                    return new Vector3Int(cx, cy, cz - 1);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);
             }

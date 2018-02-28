@@ -96,11 +96,11 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                         {
                             if (x == size.x - 1 && IsTransparent(0, y, z, neigbours[ChunkSide.Px], materialCollection, material) || x != size.x - 1 && IsTransparent(x + 1, y, z, container, materialCollection, material)) //px
                             {
-                                planes[0][x][z, y] = material;
+                                planes[0][x][y, z] = material;
                             }
                             if (x == 0 && IsTransparent(size.x - 1, y, z, neigbours[ChunkSide.Nx], materialCollection, material) || x != 0 && IsTransparent(x - 1, y, z, container, materialCollection, material)) //nx
                             {
-                                planes[1][x][z, y] = material;
+                                planes[1][x][y, z] = material;
                             }
                             if (z == size.z - 1 && IsTransparent(x, y, 0, neigbours[ChunkSide.Pz], materialCollection, material) || z != size.z - 1 && IsTransparent(x, y, z + 1, container, materialCollection, material)) //pz
                             {
