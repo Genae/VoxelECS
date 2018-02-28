@@ -20,7 +20,7 @@ namespace Assets.Scripts.VoxelEngine.Materials
             Atlases = new Dictionary<Material, Atlas>();
             VoxelMaterials = new List<LoadedVoxelMaterial>
             {
-                new LoadedVoxelMaterial(new VoxelMaterial())
+                new LoadedVoxelMaterial(ScriptableObject.CreateInstance<VoxelMaterial>())
                 {
                     AtlasPosition = 0,
                     Id = 0,

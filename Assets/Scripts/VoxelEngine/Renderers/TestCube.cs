@@ -15,15 +15,24 @@ namespace Assets.Scripts.VoxelEngine.Renderers
         {
             _collection = new MaterialCollection();
             var go = new GameObject("map");
-            var cloud = go.AddComponent<ChunkCloud>();
-            cloud.Init(_collection);
+            var cloud = new ChunkCloud(_collection, go.transform);
+            for (var x = -3; x < 3; x++)
+            {
+                for (var y = -3; y < 3; y++)
+                {
+                    for (var z = -3; z < 3; z++)
+                    {
+                        cloud.SetVoxel(TransparentMaterial, new Vector3Int(x, y, z));
+                    }
+                }
+            }
             for (var x = -1; x < 1; x++)
             {
                 for (var y = -1; y < 1; y++)
                 {
                     for (var z = -1; z < 1; z++)
                     {
-                        cloud.SetVoxel(TransparentMaterial, new Vector3Int(x, y, z));
+                        cloud.SetVoxel(OpaqueMaterial, new Vector3Int(x, y, z));
                     }
                 }
             }

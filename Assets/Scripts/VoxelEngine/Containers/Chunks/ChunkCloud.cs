@@ -6,15 +6,21 @@ using UnityEngine;
 
 namespace Assets.Scripts.VoxelEngine.Containers.Chunks
 {
-    public class ChunkCloud : MonoBehaviour
+    public class ChunkCloud
     {
-        private MaterialCollection _materialCollection;
-        private Grid3D<Chunk> _chunks;
-        private Grid3D<MeshBuilder> _chunksMeshes;
+        private readonly MaterialCollection _materialCollection;
+        private readonly Grid3D<Chunk> _chunks;
+        private readonly Grid3D<MeshBuilder> _chunksMeshes;
+        private readonly Transform _map;
 
-        public void Init(MaterialCollection materialCollection)
+        //batch
+        private bool _batchMode;
+        private List<Vector3Int> _batchedChunks = new List<Vector3Int>();
+
+        public ChunkCloud(MaterialCollection materialCollection, Transform map)
         {
             _materialCollection = materialCollection;
+            _map = map;
             _chunks = new Grid3D<Chunk>();
             _chunksMeshes = new Grid3D<MeshBuilder>();
         }
@@ -36,20 +42,37 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
             {
                 _chunks[cx, cy, cz] = new Chunk();
                 var go = new GameObject($"Chunk [{cx}, {cy}, {cz}]");
-                go.transform.parent = transform;
+                go.transform.parent = _map;
                 go.transform.localPosition = new Vector3(cx * ChunkDataSettings.XSize, cy * ChunkDataSettings.YSize, cz*ChunkDataSettings.ZSize);
                 _chunksMeshes[cx, cy, cz] = go.AddComponent<MeshBuilder>();
                 _chunksMeshes[cx, cy, cz].Init();
             }
             var p = new Vector3Int(Mod(pos.x, ChunkDataSettings.XSize), Mod(pos.y, ChunkDataSettings.YSize), Mod(pos.z, ChunkDataSettings.ZSize));
             var neighbours = _chunks[cx, cy, cz].SetVoxelData(p, material, _materialCollection);
-            _chunksMeshes[cx, cy, cz].BuildMesh(_materialCollection, GetNeighbours(cx, cy, cz), _chunks[cx, cy, cz]);
+            if (_batchMode)
+            {
+                var cp = new Vector3Int(cx, cy, cz);
+                if (!_batchedChunks.Contains(cp))
+                    _batchedChunks.Add(cp);
+            }
+            else
+            {
+                _chunksMeshes[cx, cy, cz].BuildMesh(_materialCollection, GetNeighbours(cx, cy, cz), _chunks[cx, cy, cz]);
+            }
             foreach (var neighbour in neighbours)
             {
                 var nPos = GetNeighbourPos(cx, cy, cz, neighbour);
                 if (_chunksMeshes[nPos.x, nPos.y, nPos.z] != null)
                 {
-                    _chunksMeshes[nPos.x, nPos.y, nPos.z].BuildMesh(_materialCollection, GetNeighbours(nPos.x, nPos.y, nPos.z), _chunks[nPos.x, nPos.y, nPos.z]);
+                    if (_batchMode)
+                    {
+                        if (!_batchedChunks.Contains(nPos))
+                            _batchedChunks.Add(nPos);
+                    }
+                    else
+                    {
+                        _chunksMeshes[nPos.x, nPos.y, nPos.z].BuildMesh(_materialCollection, GetNeighbours(nPos.x, nPos.y, nPos.z), _chunks[nPos.x, nPos.y, nPos.z]);
+                    }
                 }
             }
         }
@@ -91,6 +114,21 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
                 default:
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);
             }
+        }
+
+        public void StartBatch()
+        {
+            _batchMode = true;
+        }
+
+        public void FinishBatch()
+        {
+            _batchMode = false;
+            foreach (var batchedChunk in _batchedChunks)
+            {
+                _chunksMeshes[batchedChunk.x, batchedChunk.y, batchedChunk.z].BuildMesh(_materialCollection, GetNeighbours(batchedChunk.x, batchedChunk.y, batchedChunk.z), _chunks[batchedChunk.x, batchedChunk.y, batchedChunk.z]);
+            }
+            _batchedChunks.Clear();
         }
     }
 }
