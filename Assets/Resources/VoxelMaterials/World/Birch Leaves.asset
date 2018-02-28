@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7494712f9136494b98a8b48caea26da, type: 3}
+  m_Name: Birch Leaves
+  m_EditorClassIdentifier: 
+  Material: {fileID: 2100000, guid: 5208833755898244f9fc725f9fce5b53, type: 2}
+  Color: {r: 0.627451, g: 0.7254902, b: 0.49019608, a: 0}
+  Transparent: 0

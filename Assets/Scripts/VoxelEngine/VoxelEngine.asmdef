@@ -1,0 +1,8 @@
+{
+    "name": "VoxelEngine",
+    "references": [],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true
+}

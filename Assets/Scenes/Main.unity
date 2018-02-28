@@ -122,7 +122,6 @@ GameObject:
   m_Component:
   - component: {fileID: 590296694}
   - component: {fileID: 590296693}
-  - component: {fileID: 590296695}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -141,6 +140,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8e272074bfdaf3479ee15b8df2e835c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OpaqueMaterial: {fileID: 11400000, guid: 4f66a8ee1b3f4e141b07891de7d6aeab, type: 2}
+  TransparentMaterial: {fileID: 11400000, guid: d465483907e654c44b5ef48c211a9f5f,
+    type: 2}
 --- !u!4 &590296694
 Transform:
   m_ObjectHideFlags: 0
@@ -154,45 +156,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &590296695
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 590296692}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6fd4492d2bb23fe43b2df790f8b0e105, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _meshFilter: {fileID: 0}
-  _displayWireframe: 0
-  _faceNormals:
-    _draw: 1
-    _length: 0.3
-    _normalColor:
-      r: 0.13333334
-      g: 0.8666667
-      b: 0.8666667
-      a: 0.60784316
-    _baseColor:
-      r: 1
-      g: 0.52156866
-      b: 0
-      a: 1
-  _vertexNormals:
-    _draw: 0
-    _length: 0.3
-    _normalColor:
-      r: 0.78431374
-      g: 1
-      b: 0.7647059
-      a: 0.49803922
-    _baseColor:
-      r: 1
-      g: 0.52156866
-      b: 0
-      a: 1
 --- !u!1 &1369494142
 GameObject:
   m_ObjectHideFlags: 0

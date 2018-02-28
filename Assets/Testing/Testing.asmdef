@@ -1,9 +1,14 @@
 {
     "name": "Testing",
-    "references": [],
+    "references": [
+        "VoxelEngine"
+    ],
     "optionalUnityReferences": [
         "TestAssemblies"
     ],
-    "includePlatforms": [],
-    "excludePlatforms": []
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true
 }
