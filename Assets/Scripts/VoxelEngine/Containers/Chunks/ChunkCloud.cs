@@ -12,7 +12,7 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
         private readonly Grid3D<Chunk> _chunks;
         private readonly Grid3D<MeshBuilder> _chunksMeshes;
         private readonly Transform _map;
-        private int _slice = 100;
+        private int _slice = 10;
 
         //batch
         private bool _batchMode;

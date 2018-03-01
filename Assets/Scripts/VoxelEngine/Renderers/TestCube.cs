@@ -11,7 +11,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
         public VoxelMaterial TransparentMaterial;
         private ChunkCloud _cloud;
         private int _oldSlice;
-        public int Slice = 100;
+        public int Slice = 10;
 
         // Use this for initialization
         void Start ()
@@ -20,6 +20,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             _collection = new MaterialCollection();
             var go = new GameObject("map");
             _cloud = new ChunkCloud(_collection, go.transform);
+            _cloud.StartBatch();
             for (var x = -3; x < 3; x++)
             {
                 for (var y = -3; y < 3; y++)
@@ -40,6 +41,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                     }
                 }
             }
+            _cloud.FinishBatch();
         }
 	
         // Update is called once per frame

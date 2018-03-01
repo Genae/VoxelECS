@@ -24,7 +24,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
     }
     public class GreedyMeshing
     {
-        public static MeshData CreateMesh(IVoxelContainer container, Dictionary<ChunkSide, Chunk> neighbours, MaterialCollection materialCollection, int? slice, out List<Vector3> upVoxels)
+        public static MeshData CreateMesh(IVoxelContainer container, Dictionary<ChunkSide, Chunk> neighbours, MaterialCollection materialCollection, int? slice, bool topSlice, out List<Vector3> upVoxels)
         {
             //create planes
             if (neighbours == null)
@@ -40,7 +40,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                 };
             }
             var size = container.GetSize();
-            var planes = InitializePlanes(container, neighbours, materialCollection, slice, out upVoxels);
+            var planes = InitializePlanes(container, neighbours, materialCollection, slice, topSlice, out upVoxels);
 
             //Planes to Rects
             var rects = new Rect[6][][];
@@ -70,7 +70,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             return meshData;
         }
 
-        private static LoadedVoxelMaterial[][][,] InitializePlanes(IVoxelContainer container, Dictionary<ChunkSide, Chunk> neigbours, MaterialCollection materialCollection, int? slice, out List<Vector3> upVoxels)
+        private static LoadedVoxelMaterial[][][,] InitializePlanes(IVoxelContainer container, Dictionary<ChunkSide, Chunk> neigbours, MaterialCollection materialCollection, int? slice, bool topSlice, out List<Vector3> upVoxels)
         {
             //initialize Plane Arrays
             var size = container.GetSize();
@@ -90,7 +90,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                 {
                     for (var z = 0; z < size.z; z++)
                     {
-                        if (slice != null && slice.Value <= y)
+                        if (slice != null && (slice.Value <= y && !topSlice || slice.Value > y && topSlice))
                             continue;
                         var id = container.GetVoxelData(new Vector3Int(x, y, z));
                         var material = materialCollection.GetById(id);
