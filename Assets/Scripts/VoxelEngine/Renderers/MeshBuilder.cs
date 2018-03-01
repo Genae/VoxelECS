@@ -22,10 +22,16 @@ namespace Assets.Scripts.VoxelEngine.Renderers
         }
         
 
-        public void BuildMesh(MaterialCollection materials, Dictionary<ChunkSide, Chunk> neighbours, Chunk chunk)
+        public void BuildMesh(MaterialCollection materials, Dictionary<ChunkSide, Chunk> neighbours, Chunk chunk, int slice, bool rebuild)
         {
+            _meshRenderer.shadowCastingMode = slice <= 0 ? ShadowCastingMode.ShadowsOnly : ShadowCastingMode.On;
+            if (slice <= 0 || slice > ChunkDataSettings.YSize && !rebuild)
+            {
+                return;
+            }
+
             List<Vector3> upVoxels;
-            var meshdata = GreedyMeshing.CreateMesh(chunk, neighbours, materials, out upVoxels);
+            var meshdata = GreedyMeshing.CreateMesh(chunk, neighbours, materials, slice, out upVoxels);
 
 
             if (Mesh == null)
@@ -50,18 +56,6 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             _meshCollider.sharedMesh = Mesh;
             //SetHighlightMaterial(_highlightColor);
             gameObject.SetActive(meshdata.Vertices.Length != 0);
-        }
-
-        public void SetSliced(int slice)
-        {
-            if (slice <= 0)
-            {
-                _meshRenderer.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
-            }
-            if (slice >= ChunkDataSettings.YSize)
-            {
-                _meshRenderer.shadowCastingMode = ShadowCastingMode.On;
-            }
         }
     }
 }

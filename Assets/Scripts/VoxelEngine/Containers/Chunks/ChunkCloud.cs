@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Assets.Scripts.VoxelEngine.Materials;
 using Assets.Scripts.VoxelEngine.Renderers;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Assets.Scripts.VoxelEngine.Containers.Chunks
@@ -59,7 +58,8 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
             }
             else
             {
-                _chunksMeshes[cx, cy, cz].BuildMesh(_materialCollection, GetNeighbours(cx, cy, cz), _chunks[cx, cy, cz]);
+                var mySlice = _slice - cy * ChunkDataSettings.YSize;
+                _chunksMeshes[cx, cy, cz].BuildMesh(_materialCollection, GetNeighbours(cx, cy, cz), _chunks[cx, cy, cz], mySlice, true);
             }
             foreach (var neighbour in neighbours)
             {
@@ -73,7 +73,8 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
                     }
                     else
                     {
-                        _chunksMeshes[nPos.x, nPos.y, nPos.z].BuildMesh(_materialCollection, GetNeighbours(nPos.x, nPos.y, nPos.z), _chunks[nPos.x, nPos.y, nPos.z]);
+                        var mySlice = _slice - nPos.y * ChunkDataSettings.YSize;
+                        _chunksMeshes[nPos.x, nPos.y, nPos.z].BuildMesh(_materialCollection, GetNeighbours(nPos.x, nPos.y, nPos.z), _chunks[nPos.x, nPos.y, nPos.z], mySlice, true);
                     }
                 }
             }
@@ -128,7 +129,8 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
             _batchMode = false;
             foreach (var batchedChunk in _batchedChunks)
             {
-                _chunksMeshes[batchedChunk.x, batchedChunk.y, batchedChunk.z].BuildMesh(_materialCollection, GetNeighbours(batchedChunk.x, batchedChunk.y, batchedChunk.z), _chunks[batchedChunk.x, batchedChunk.y, batchedChunk.z]);
+                var mySlice = _slice - batchedChunk.y * ChunkDataSettings.YSize;
+                _chunksMeshes[batchedChunk.x, batchedChunk.y, batchedChunk.z].BuildMesh(_materialCollection, GetNeighbours(batchedChunk.x, batchedChunk.y, batchedChunk.z), _chunks[batchedChunk.x, batchedChunk.y, batchedChunk.z], mySlice, true);
             }
             _batchedChunks.Clear();
         }
@@ -136,10 +138,10 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
         public void SetSlice(int slice)
         {
             _slice = slice;
-            var cy = slice / ChunkDataSettings.YSize - (slice < 0 ? 1 : 0);
             foreach (var mesh in _chunksMeshes)
             {
-                mesh.Value.SetSliced(slice - mesh.Key.y * ChunkDataSettings.YSize);
+                var mySlice = slice - mesh.Key.y * ChunkDataSettings.YSize;
+                mesh.Value.BuildMesh(_materialCollection, GetNeighbours(mesh.Key.x, mesh.Key.y, mesh.Key.z), _chunks[mesh.Key.x, mesh.Key.y, mesh.Key.z], mySlice, true);
             }
         }
     }
