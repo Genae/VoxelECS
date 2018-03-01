@@ -9,20 +9,24 @@ namespace Assets.Scripts.VoxelEngine.Renderers
         private MaterialCollection _collection;
         public VoxelMaterial OpaqueMaterial;
         public VoxelMaterial TransparentMaterial;
+        private ChunkCloud _cloud;
+        private int _oldSlice;
+        public int Slice = 100;
 
         // Use this for initialization
         void Start ()
         {
+            _oldSlice = Slice;
             _collection = new MaterialCollection();
             var go = new GameObject("map");
-            var cloud = new ChunkCloud(_collection, go.transform);
+            _cloud = new ChunkCloud(_collection, go.transform);
             for (var x = -3; x < 3; x++)
             {
                 for (var y = -3; y < 3; y++)
                 {
                     for (var z = -3; z < 3; z++)
                     {
-                        cloud.SetVoxel(TransparentMaterial, new Vector3Int(x, y, z));
+                        _cloud.SetVoxel(TransparentMaterial, new Vector3Int(x, y, z));
                     }
                 }
             }
@@ -32,7 +36,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                 {
                     for (var z = -1; z < 1; z++)
                     {
-                        cloud.SetVoxel(OpaqueMaterial, new Vector3Int(x, y, z));
+                        _cloud.SetVoxel(OpaqueMaterial, new Vector3Int(x, y, z));
                     }
                 }
             }
@@ -40,7 +44,11 @@ namespace Assets.Scripts.VoxelEngine.Renderers
 	
         // Update is called once per frame
         void Update () {
-		
+            if (_oldSlice != Slice)
+            {
+                _cloud.SetSlice(Slice);
+                _oldSlice = Slice;
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using Assets.Scripts.VoxelEngine.Containers.Chunks;
 using Assets.Scripts.VoxelEngine.Materials;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Assets.Scripts.VoxelEngine.Renderers
 {
@@ -49,6 +50,18 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             _meshCollider.sharedMesh = Mesh;
             //SetHighlightMaterial(_highlightColor);
             gameObject.SetActive(meshdata.Vertices.Length != 0);
+        }
+
+        public void SetSliced(int slice)
+        {
+            if (slice <= 0)
+            {
+                _meshRenderer.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
+            }
+            if (slice >= ChunkDataSettings.YSize)
+            {
+                _meshRenderer.shadowCastingMode = ShadowCastingMode.On;
+            }
         }
     }
 }

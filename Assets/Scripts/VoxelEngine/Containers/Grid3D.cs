@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.VoxelEngine.Containers
 {
-    public class Grid3D<T> : IEnumerable<T> where T: class
+    public class Grid3D<T> : IEnumerable<KeyValuePair<Vector3Int,T>> where T: class
     {
         private readonly Dictionary<int, Dictionary<int, Dictionary<int, T>>> _nodes = new Dictionary<int, Dictionary<int, Dictionary<int, T>>>();
         private Vector3Int _size;
@@ -71,9 +72,9 @@ namespace Assets.Scripts.VoxelEngine.Containers
             return _size;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<KeyValuePair<Vector3Int, T>> GetEnumerator()
         {
-            return _nodes.Values.SelectMany(x => x.Values.SelectMany(y => y.Values.Select(z => z))).GetEnumerator();
+            return _nodes.SelectMany(x => x.Value.SelectMany(y => y.Value.Select(z => new KeyValuePair<Vector3Int, T>(new Vector3Int(x.Key, y.Key, z.Key), z.Value)))).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

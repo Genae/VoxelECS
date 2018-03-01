@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Assets.Scripts.VoxelEngine.Materials;
 using Assets.Scripts.VoxelEngine.Renderers;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Assets.Scripts.VoxelEngine.Containers.Chunks
@@ -12,6 +13,7 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
         private readonly Grid3D<Chunk> _chunks;
         private readonly Grid3D<MeshBuilder> _chunksMeshes;
         private readonly Transform _map;
+        private int _slice = 100;
 
         //batch
         private bool _batchMode;
@@ -129,6 +131,16 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
                 _chunksMeshes[batchedChunk.x, batchedChunk.y, batchedChunk.z].BuildMesh(_materialCollection, GetNeighbours(batchedChunk.x, batchedChunk.y, batchedChunk.z), _chunks[batchedChunk.x, batchedChunk.y, batchedChunk.z]);
             }
             _batchedChunks.Clear();
+        }
+
+        public void SetSlice(int slice)
+        {
+            _slice = slice;
+            var cy = slice / ChunkDataSettings.YSize - (slice < 0 ? 1 : 0);
+            foreach (var mesh in _chunksMeshes)
+            {
+                mesh.Value.SetSliced(slice - mesh.Key.y * ChunkDataSettings.YSize);
+            }
         }
     }
 }
