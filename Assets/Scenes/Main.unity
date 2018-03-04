@@ -141,7 +141,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   OpaqueMaterial: {fileID: 11400000, guid: 4f66a8ee1b3f4e141b07891de7d6aeab, type: 2}
-  TransparentMaterial: {fileID: 11400000, guid: d465483907e654c44b5ef48c211a9f5f,
+  TransparentMaterial: {fileID: 11400000, guid: e7f116ad9eb2ba748b38a7f032d27bc7,
     type: 2}
   Slice: 10
 --- !u!4 &590296694
@@ -384,7 +384,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1735645445}
   m_LocalRotation: {x: 0.2912262, y: -0, z: -0, w: 0.9566542}
-  m_LocalPosition: {x: 0, y: 3.65, z: -11.8}
+  m_LocalPosition: {x: 0, y: 16.22, z: -30.54}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

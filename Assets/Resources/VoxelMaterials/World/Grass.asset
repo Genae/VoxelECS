@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Name: Grass
   m_EditorClassIdentifier: 
   Material: {fileID: 2100000, guid: 5208833755898244f9fc725f9fce5b53, type: 2}
-  Color: {r: 0.19607843, g: 0.8039216, b: 0.19607843, a: 0}
+  Color: {r: 0.19607843, g: 0.8039216, b: 0.19607843, a: 1}
   Transparent: 0
