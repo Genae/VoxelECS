@@ -14,7 +14,7 @@ namespace Assets.Testing.VoxelEngine
             var go = new GameObject("map");
             var cloud = new ChunkCloud(collection, go.transform);
             cloud.StartBatch();
-            var start = new Vector3Int(-2, -2, -2);
+            var start = new Vector3Int(-30, -30, -30);
             var end = new Vector3Int(30, 30, 30);
             for (var x = start.x; x < end.x; x++)
             {
