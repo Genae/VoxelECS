@@ -12,7 +12,7 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
         private readonly Grid3D<Chunk> _chunks;
         private readonly Grid3D<MeshBuilder> _chunksMeshes;
         private readonly Transform _map;
-        private int _slice = 10;
+        private int _slice = 100;
 
         //batch
         private bool _batchMode;
@@ -36,9 +36,9 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
         }
         public void SetVoxel(ushort material, Vector3Int pos)
         {
-            var cx = pos.x / ChunkDataSettings.XSize - (pos.x < 0 ? 1 : 0);
-            var cy = pos.y / ChunkDataSettings.YSize - (pos.y < 0 ? 1 : 0);
-            var cz = pos.z / ChunkDataSettings.ZSize - (pos.z < 0 ? 1 : 0);
+            var cx = (pos.x + (pos.x < 0 ? 1 : 0)) / ChunkDataSettings.XSize - (pos.x < 0 ? 1 : 0);
+            var cy = (pos.y + (pos.y < 0 ? 1 : 0)) / ChunkDataSettings.YSize - (pos.y < 0 ? 1 : 0);
+            var cz = (pos.z + (pos.z < 0 ? 1 : 0)) / ChunkDataSettings.ZSize - (pos.z < 0 ? 1 : 0);
             if (_chunks[cx, cy, cz] == null)
             {
                 _chunks[cx, cy, cz] = new Chunk();

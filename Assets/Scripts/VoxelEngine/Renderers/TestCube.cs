@@ -21,11 +21,11 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             var go = new GameObject("map");
             _cloud = new ChunkCloud(_collection, go.transform);
             _cloud.StartBatch();
-            for (var x = -3; x < 3; x++)
+            for (var x = -32; x < 32; x++)
             {
-                for (var y = -3; y < 3; y++)
+                for (var y = 0; y < 3; y++)
                 {
-                    for (var z = -3; z < 3; z++)
+                    for (var z = -32; z < 32; z++)
                     {
                         _cloud.SetVoxel(TransparentMaterial, new Vector3Int(x, y, z));
                     }
