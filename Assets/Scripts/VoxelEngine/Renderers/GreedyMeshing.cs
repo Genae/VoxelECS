@@ -45,10 +45,10 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             var planes = InitializePlanes(container, neighbours, materialCollection, slice, topSlice, out upVoxels);
 
             //Planes to Rects
-            var rects = new Rect[6][][];
+            var rects = new List<Rect>[6][];
             for (var side = 0; side < 6; side++)
             {
-                rects[side] = new Rect[side < 2 ? size.x : (side < 4 ? size.z : size.y)][];
+                rects[side] = new List<Rect>[side < 2 ? size.x : (side < 4 ? size.z : size.y)];
                 for (var depth = 0; depth < rects[side].Length; depth++)
                 {
                     rects[side][depth] = CreateRectsForPlane(planes[side][depth]);
@@ -150,7 +150,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             return id == 0 || matCol.GetById(id).Transparent;
         }
 
-        public static Rect[] CreateRectsForPlane(ushort[,] plane)
+        public static List<Rect> CreateRectsForPlane(ushort[,] plane)
         {
             var rects = new List<Rect>();
             var visited = new bool[plane.GetLength(0), plane.GetLength(1)];
@@ -201,7 +201,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                     }
                 }
             }
-            return rects.ToArray();
+            return rects;
         }
 
         
@@ -233,7 +233,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             }
         }
 
-        private static void AddRectsToMesh(int side, int depth, Rect[] rects, MaterialCollection materialCollection, ref List<Vector3> vertices, ref Dictionary<int, List<int>> triangles, ref List<Vector3> normals, ref List<Vector2> uvs)
+        private static void AddRectsToMesh(int side, int depth, List<Rect> rects, MaterialCollection materialCollection, ref List<Vector3> vertices, ref Dictionary<int, List<int>> triangles, ref List<Vector3> normals, ref List<Vector2> uvs)
         {
             foreach (var rect in rects)
             {
