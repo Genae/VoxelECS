@@ -53,8 +53,11 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
             if (_batchMode)
             {
                 var cp = new Vector3Int(cx, cy, cz);
-                if (!_batchedChunks.Contains(cp))
+                if (!_chunksMeshes[cx, cy, cz].NeedsUpdate)
+                {
+                    _chunksMeshes[cx, cy, cz].NeedsUpdate = true;
                     _batchedChunks.Add(cp);
+                }
             }
             else
             {
@@ -68,8 +71,11 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
                 {
                     if (_batchMode)
                     {
-                        if (!_batchedChunks.Contains(nPos))
+                        if (!_chunksMeshes[nPos.x, nPos.y, nPos.z].NeedsUpdate)
+                        {
+                            _chunksMeshes[nPos.x, nPos.y, nPos.z].NeedsUpdate = true;
                             _batchedChunks.Add(nPos);
+                        }
                     }
                     else
                     {
@@ -141,7 +147,7 @@ namespace Assets.Scripts.VoxelEngine.Containers.Chunks
             foreach (var mesh in _chunksMeshes)
             {
                 var mySlice = slice - mesh.Key.y * ChunkDataSettings.YSize;
-                mesh.Value.BuildMesh(_materialCollection, GetNeighbours(mesh.Key.x, mesh.Key.y, mesh.Key.z), _chunks[mesh.Key.x, mesh.Key.y, mesh.Key.z], mySlice, true);
+                mesh.Value.BuildMesh(_materialCollection, GetNeighbours(mesh.Key.x, mesh.Key.y, mesh.Key.z), _chunks[mesh.Key.x, mesh.Key.y, mesh.Key.z], mySlice, false);
             }
         }
     }

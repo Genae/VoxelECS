@@ -13,19 +13,25 @@ namespace Assets.Scripts.VoxelEngine.Renderers
         private int _oldSlice;
         public int Slice = 10;
 
+        private int _init = 10;
+
         // Use this for initialization
         void Start ()
+        {
+        }
+        
+        private void Init()
         {
             _oldSlice = Slice;
             _collection = new MaterialCollection();
             var go = new GameObject("map");
             _cloud = new ChunkCloud(_collection, go.transform);
             _cloud.StartBatch();
-            for (var x = -32; x < 32; x++)
+            for (var x = -300; x < 300; x++)
             {
                 for (var y = 0; y < 3; y++)
                 {
-                    for (var z = -32; z < 32; z++)
+                    for (var z = -300; z < 300; z++)
                     {
                         _cloud.SetVoxel(TransparentMaterial, new Vector3Int(x, y, z));
                     }
@@ -43,10 +49,15 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             }
             _cloud.FinishBatch();
         }
-	
+
         // Update is called once per frame
         void Update () {
-            if (_oldSlice != Slice)
+            if (_init == 0)
+            {
+                Init();
+            }
+            _init--;
+            if (_oldSlice != Slice && _init < 0)
             {
                 _cloud.SetSlice(Slice);
                 _oldSlice = Slice;

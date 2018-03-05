@@ -21,6 +21,11 @@ namespace Assets.Scripts.VoxelEngine.Renderers
         private MeshCollider _slicedCollider;
         private MeshFilter _slicedFilter;
 
+        //batchMode
+        public bool NeedsUpdate;
+
+        //cache Mesh
+
         public void Init()
         {
             _meshRenderer = gameObject.GetComponent<MeshRenderer>() != null ? gameObject.GetComponent<MeshRenderer>() : gameObject.AddComponent<MeshRenderer>();
@@ -43,6 +48,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
 
         public void BuildMesh(MaterialCollection materials, Dictionary<ChunkSide, Chunk> neighbours, Chunk chunk, int slice, bool rebuild)
         {
+            NeedsUpdate = false;
             _meshRenderer.shadowCastingMode = slice <= 0 ? ShadowCastingMode.ShadowsOnly : ShadowCastingMode.On;
             if (slice <= 0 || slice > ChunkDataSettings.YSize && !rebuild)
             {

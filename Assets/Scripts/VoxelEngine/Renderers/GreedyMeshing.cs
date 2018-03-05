@@ -13,13 +13,15 @@ namespace Assets.Scripts.VoxelEngine.Renderers
         public Dictionary<int, int[]> Triangles;
         public Vector3[] Normals;
         public Vector2[] Uvs;
+        public ushort[][][,] Planes;
 
-        public MeshData(Vector3[] verticies, Dictionary<int, int[]> triangles, Vector3[] normals, Vector2[] uvs)
+        public MeshData(Vector3[] verticies, Dictionary<int, int[]> triangles, Vector3[] normals, Vector2[] uvs, ushort[][][,] planes)
         {
             Vertices = verticies;
             Triangles = triangles;
             Normals = normals;
             Uvs = uvs;
+            Planes = planes;
         }
     }
     public class GreedyMeshing
@@ -62,26 +64,26 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             {
                 for (var depth = 0; depth < rects[side].Length; depth++)
                 {
-                    AddRectsToMesh(side, depth, rects[side][depth], ref verticesL, ref trianglesL, ref normalsL, ref uvsL);
+                    AddRectsToMesh(side, depth, rects[side][depth], materialCollection, ref verticesL, ref trianglesL, ref normalsL, ref uvsL);
                 }
             }
 
-            var meshData = new MeshData(verticesL.ToArray(), trianglesL.ToDictionary(v => v.Key, v => v.Value.ToArray()), normalsL.ToArray(), uvsL.ToArray());
+            var meshData = new MeshData(verticesL.ToArray(), trianglesL.ToDictionary(v => v.Key, v => v.Value.ToArray()), normalsL.ToArray(), uvsL.ToArray(), planes);
             return meshData;
         }
 
-        private static LoadedVoxelMaterial[][][,] InitializePlanes(IVoxelContainer container, Dictionary<ChunkSide, Chunk> neigbours, MaterialCollection materialCollection, int? slice, bool topSlice, out List<Vector3> upVoxels)
+        private static ushort[][][,] InitializePlanes(IVoxelContainer container, Dictionary<ChunkSide, Chunk> neigbours, MaterialCollection materialCollection, int? slice, bool topSlice, out List<Vector3> upVoxels)
         {
             //initialize Plane Arrays
             var size = container.GetSize();
             upVoxels = new List<Vector3>();
-            var planes = new LoadedVoxelMaterial[6][][,];
+            var planes = new ushort[6][][,];
             for (var side = 0; side < 6; side++)
             {
-                planes[side] = new LoadedVoxelMaterial[side < 2 ? size.x : (side < 4 ? size.z : size.y)][,];
+                planes[side] = new ushort[side < 2 ? size.x : (side < 4 ? size.z : size.y)][,];
                 for (var depth = 0; depth < planes[side].Length; depth++)
                 {
-                    planes[side][depth] = new LoadedVoxelMaterial[side < 2 ? size.y : size.x, side == 2 || side == 3 ? size.y : size.z];
+                    planes[side][depth] = new ushort[side < 2 ? size.y : size.x, side == 2 || side == 3 ? size.y : size.z];
                 }
             }
             for (var x = 0; x < size.x; x++)
@@ -98,29 +100,29 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                         {
                             if (x == size.x - 1 && IsTransparent(0, y, z, neigbours[ChunkSide.Px], materialCollection, material) || x != size.x - 1 && IsTransparent(x + 1, y, z, container, materialCollection, material)) //px
                             {
-                                planes[0][x][y, z] = material;
+                                planes[0][x][y, z] = id;
                             }
                             if (x == 0 && IsTransparent(size.x - 1, y, z, neigbours[ChunkSide.Nx], materialCollection, material) || x != 0 && IsTransparent(x - 1, y, z, container, materialCollection, material)) //nx
                             {
-                                planes[1][x][y, z] = material;
+                                planes[1][x][y, z] = id;
                             }
                             if (z == size.z - 1 && IsTransparent(x, y, 0, neigbours[ChunkSide.Pz], materialCollection, material) || z != size.z - 1 && IsTransparent(x, y, z + 1, container, materialCollection, material)) //pz
                             {
-                                planes[2][z][x, y] = material;
+                                planes[2][z][x, y] = id;
                             }
                             if (z == 0 && IsTransparent(x, y, size.z-1, neigbours[ChunkSide.Nz], materialCollection, material) || z != 0 && IsTransparent(x, y, z - 1, container, materialCollection, material)) //nz
                             {
-                                planes[3][z][x, y] = material;
+                                planes[3][z][x, y] = id;
                             }
                             if (y == size.y - 1 && IsTransparent(x, 0, z, neigbours[ChunkSide.Py], materialCollection, material, slice.HasValue ? slice - size.y : null) || y != size.y - 1 && IsTransparent(x, y + 1, z, container, materialCollection, material, slice)) //py
                             {
                                 if (y < size.y - 1 && container.GetVoxelData(new Vector3Int(x, y + 1, z)) == 0)
                                     upVoxels.Add(new Vector3(x, y + 1, z));
-                                planes[4][y][x, z] = material;
+                                planes[4][y][x, z] = id;
                             }
                             if (y == 0 && IsTransparent(x, size.y - 1, z, neigbours[ChunkSide.Ny], materialCollection, material) || y != 0 && IsTransparent(x, y - 1, z, container, materialCollection, material)) //ny
                             {
-                                planes[5][y][x, z] = material;
+                                planes[5][y][x, z] = id;
                             }
                         }
                         else
@@ -148,20 +150,22 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             return id == 0 || matCol.GetById(id).Transparent;
         }
 
-        public static Rect[] CreateRectsForPlane(LoadedVoxelMaterial[,] plane)
+        public static Rect[] CreateRectsForPlane(ushort[,] plane)
         {
             var rects = new List<Rect>();
             var visited = new bool[plane.GetLength(0), plane.GetLength(1)];
             Rect curRectangle = null;
-            LoadedVoxelMaterial curType = null;
+            ushort curType = 0;
 
 
-            for (var j = 0; j < plane.GetLength(1); j++)
+            var l1 = plane.GetLength(1);
+            var l0 = plane.GetLength(0);
+            for (var j = 0; j < l1; j++)
             {
-                for (var i = 0; i < plane.GetLength(0); i++)
+                for (var i = 0; i < l0; i++)
                 {
                     var vox = plane[i, j];
-                    if (!Equals(vox, curType) || visited[i, j]) //End Rect because of current voxel
+                    if (vox != curType || visited[i, j]) //End Rect because of current voxel
                     {
                         if (curRectangle != null)
                         {
@@ -173,7 +177,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                         if (visited[i, j])
                             continue;
                     }
-                    if (vox != null) //Create new Rect if there is no
+                    if (vox != 0) //Create new Rect if there is no
                     {
                         if (curRectangle == null)
                         {
@@ -185,7 +189,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                             curRectangle.Width++;
                         }
                     }
-                    if (i == plane.GetLength(1) - 1) // End because of Border
+                    if (i == l1 - 1) // End because of Border
                     {
                         if (curRectangle != null)
                         {
@@ -212,7 +216,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
             }
         }
 
-        internal static void ExpandVertically(Rect curRectangle, LoadedVoxelMaterial curType, LoadedVoxelMaterial[,] plane)
+        internal static void ExpandVertically(Rect curRectangle, ushort curType, ushort[,] plane)
         {
             while (true)
             {
@@ -222,14 +226,14 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                 //check next line
                 for (var i = curRectangle.X; i < curRectangle.X + curRectangle.Width; i++)
                 {
-                    if (!Equals(plane[i, curRectangle.Y + curRectangle.Height], curType))
+                    if (curType != plane[i, curRectangle.Y + curRectangle.Height])
                         return; // found wrong type
                 }
                 curRectangle.Height++;
             }
         }
 
-        private static void AddRectsToMesh(int side, int depth, Rect[] rects, ref List<Vector3> vertices, ref Dictionary<int, List<int>> triangles, ref List<Vector3> normals, ref List<Vector2> uvs)
+        private static void AddRectsToMesh(int side, int depth, Rect[] rects, MaterialCollection materialCollection, ref List<Vector3> vertices, ref Dictionary<int, List<int>> triangles, ref List<Vector3> normals, ref List<Vector2> uvs)
         {
             foreach (var rect in rects)
             {
@@ -279,12 +283,12 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                     new Vector3(norm.x, norm.y, norm.z)
                 });
 
-                if (!triangles.ContainsKey(rect.Type.Id))
-                    triangles[rect.Type.Id] = new List<int>();
+                if (!triangles.ContainsKey(rect.Type))
+                    triangles[rect.Type] = new List<int>();
 
                 if (side % 2 == 0)
                 {
-                    triangles[rect.Type.Id].AddRange(new[]
+                    triangles[rect.Type].AddRange(new[]
                     {
                         0 + offset, 1 + offset, 3 + offset,
                         0 + offset, 3 + offset, 2 + offset
@@ -292,7 +296,7 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                 }
                 else
                 {
-                    triangles[rect.Type.Id].AddRange(new[]
+                    triangles[rect.Type].AddRange(new[]
                     {
                         1 + offset, 0 + offset, 3 + offset,
                         3 + offset, 0 + offset, 2 + offset
@@ -300,7 +304,8 @@ namespace Assets.Scripts.VoxelEngine.Renderers
                 }
 
                 // ReSharper disable once PossibleLossOfFraction
-                var uvcoord = new Vector2(rect.Type.AtlasPosition / MaterialCollectionSettings.AtlasSize / (float)MaterialCollectionSettings.AtlasSize, rect.Type.AtlasPosition % MaterialCollectionSettings.AtlasSize / (float)MaterialCollectionSettings.AtlasSize);
+                var material = materialCollection.GetById(rect.Type);
+                var uvcoord = new Vector2((int)(material.AtlasPosition / MaterialCollectionSettings.AtlasSize) / (float)MaterialCollectionSettings.AtlasSize, material.AtlasPosition % MaterialCollectionSettings.AtlasSize / (float)MaterialCollectionSettings.AtlasSize);
                 uvs.AddRange(new[]
                 {
                     new Vector2(uvcoord.x + 0.1f/MaterialCollectionSettings.AtlasSize, uvcoord.y+ 0.1f/MaterialCollectionSettings.AtlasSize),
@@ -317,9 +322,9 @@ namespace Assets.Scripts.VoxelEngine.Renderers
     {
         public int X, Y;
         public int Width, Height;
-        public LoadedVoxelMaterial Type;
+        public ushort Type;
 
-        public Rect(int x, int y, LoadedVoxelMaterial type)
+        public Rect(int x, int y, ushort type)
         {
             X = x;
             Y = y;
